@@ -143,7 +143,11 @@ class ChangePasswordAPIView(APIView):
 
     serializer_class = ChangePasswordSerializer
 
-    def post(self, request):
+    def post(self, request, pk):
+        try:
+            request.user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({}, status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid() or not request.user.check_password(
                 request.data.get('actual_password')):

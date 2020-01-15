@@ -29,7 +29,8 @@ class UserAdminSerializerTestCase(TestCase):
     def test_containt_expected_fields(self):
         data = self.serializer.data
         self.assertCountEqual(data.keys(), ['id', 'email', 'is_active',
-                                            'created_at', 'updated_at'])
+                                            'created_at', 'updated_at',
+                                            'is_superuser'])
 
     def test_email_field_content(self):
         data = self.serializer.data
@@ -64,7 +65,7 @@ class UserViewSetTestCase(TestCase):
 
     def test_user_get(self):
         response = self.client.get(
-            reverse('administration:users', kwargs={'pk': 1}),
+            reverse('administration:users', kwargs={'pk': self.user.pk}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -220,8 +221,8 @@ class UserViewSetTestCase(TestCase):
 
 #     def test_list_funds_no_superuser(self):
 #         response = self.client.get(
-#             reverse('admin-funds-list'), 
-#             content_type='application/json', 
+#             reverse('admin-funds-list'),
+#             content_type='application/json',
 #             **self.headers)
 #         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

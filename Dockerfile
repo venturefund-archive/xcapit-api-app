@@ -1,4 +1,4 @@
-FROM python:3.6.4
+FROM python:3.8
 
 RUN pip install --upgrade pip
 ENV PYTHONUNBUFFERED 1

@@ -2,14 +2,14 @@ import json
 from django.test import TestCase, tag
 from rest_framework import status
 from rest_framework.serializers import ValidationError
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_text, force_bytes
 from django.urls import reverse
 from django.utils.safestring import SafeText
 
 from .models import User
-from .serializer import RegistrationSerializer, CustomTokenObtainPairSerializer, \
-    ResetPasswordSerializer, ChangePasswordSerializer
+from .serializer import RegistrationSerializer, ResetPasswordSerializer, \
+    ChangePasswordSerializer
 from .validators import number_validator, uppercase_validator, \
     lowercase_validator
 from .tokens import email_validation_token
@@ -578,20 +578,25 @@ class ResetPasswordSerializerTestCase(TestCase):
 class ChangePasswordAPIViewTestCase(TestCase):
 
     def setUp(self):
+        self.user_data = {
+            'email': 'test@test.com',
+            'password': 'test1T'
+        }
+        self.user = create_user(**self.user_data, is_superuser=False)
         self.credentials = get_credentials(
             self.client,
-            email="test13@test.com",
-            password="test1T"
+            **self.user_data,
+            new_user=False
         )
 
     def test_change_password_valid(self):
         payload = json.dumps({
-            'actual_password': 'test1T',
+            'actual_password': self.user_data['password'],
             'password': 'test2T',
             'repeat_password': 'test2T',
         })
         response = self.client.post(
-            reverse('users:change-password'),
+            reverse('users:change-password', kwargs={'pk': self.user.pk}),
             data=payload,
             content_type='application/json',
             **self.credentials
@@ -605,7 +610,7 @@ class ChangePasswordAPIViewTestCase(TestCase):
             'repeat_password': 'asdf'
         })
         response = self.client.post(
-            reverse('users:change-password'),
+            reverse('users:change-password', kwargs={'pk': self.user.pk}),
             data=payload,
             content_type='application/json',
             **self.credentials

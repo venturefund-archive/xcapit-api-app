@@ -6,8 +6,7 @@ from .models import User
 from .validators import lowercase_validator, uppercase_validator, \
     number_validator
 
-# TODO: Traer referidos
-# from referrals.services import referral_update
+from referrals.services import referral_update
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -37,8 +36,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         del validated_data['repeat_password']
         del validated_data['repeat_email']
         result = User.objects.create_user(**validated_data)
-        # TODO: Traer referidos
-        # referral_update(referral_code=referral_code, email=email)
+        referral_update(referral_code=referral_code, email=email)
         return result
 
     def validate(self, data):
