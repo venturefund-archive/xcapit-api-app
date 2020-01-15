@@ -275,9 +275,71 @@ paths:
             application/json:
               schema:
                 type: "object"
-      security:
-        - jwtAuth: []
 
+  /profiles/?user_id=1:
+    put:
+      tags:
+        - "profiles"
+      summary: "Actualiza el perfil del usuario del id recibido"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Perfil"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.update.invalidData, profiles.update.doesNotExists]
+    get:
+      tags:
+        - "profiles"
+      summary: "Retorna el perfil del usuario del id recibido"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"      
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.retrieve.doesNotExists]
 
 components:
   securitySchemes:
@@ -312,5 +374,23 @@ components:
           type: "string"
         updated_at:
           type: "string"
-
+    Profile:
+      type: "object"
+      properties:
+        first_name:
+          type: "string"
+        last_name:
+          type: "string"
+        nro_dni:
+          type: "string"
+        cellphone:
+          type: "string"
+        condicion_iva:
+          type: "string"
+        tipo_factura:
+          type: "string"
+        cuit:
+          type: "string"
+        direccion:
+          type: "string"
 
