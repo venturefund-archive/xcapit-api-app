@@ -1,0 +1,316 @@
+openapi: "3.0.1"
+
+info:
+  description: "API que almacena informacion para App Advisor."
+  version: "v1"
+  title: "XCAPIT API APP"
+
+servers:
+  - url: "http://localhost:9060/v1/api"
+
+tags:
+  - name: "users"
+    description: "Registro, Login y operaciones sobre el usuario"
+
+paths:
+  /users/:
+    post:
+      tags:
+        - "users"
+      summary: "Registra un nuevo usuario"
+      requestBody:
+        description: "Usuario a registrar"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        201:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: ['users.registration.invalidData']
+  /users/email_validation:
+    post:
+      tags:
+        - "users"
+      summary: "Valida el token enviado al email del usuario"
+      requestBody:
+        description: "Objeto que contiene el token"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: "string"
+                uidb64:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  isValid:
+                    type: "boolean"
+                    enum: [true]
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  isValid:
+                    type: "boolean"
+                    enum: [false]
+                  error_code:
+                    type: "string"
+                    enum: ['users.emailValidation.invalid']
+  /users/login:
+    post:
+      tags:
+        - "users"
+      summary: "Validación de username (email) y pass para login"
+      requestBody:
+        description: "Objeto que contiene el token"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: "string"
+                password:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  access:
+                    type: "string"
+                  refresh:
+                    type: "string"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    properties:
+                      message:
+                        type: "string"
+                      code:
+                        type: "string"
+                  error_code:
+                    type: "string"
+                    enum: [users.login.invalidCredentials]
+  /users/send_email_validation:
+    post:
+      tags:
+        - "users"
+      summary: "Envía el email de validación"
+      description: "Se usa en caso de que falle el envío cuando se registra el usuario"
+      requestBody:
+        description: "El id del usuario en base64"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                uidb64:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [users.sendEmailValidationToken.user]
+  /users/send_reset_password_email:
+    post:
+      tags:
+        - "users"
+      summary: "Envía el email para el reset de la password de usuario"
+      requestBody:
+        description: "El email/nombre de usuario del cliente"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [users.sendResetPasswordEmail.user]
+  /users/reset_password:
+    post:
+      tags:
+        - "users"
+      summary: "Resetea la password del usuario"
+      requestBody:
+        description: "Objeto que contiene el token y uidb64 del usuario para validación y la nueva password junto con su confirmación"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: "string"
+                uidb64:
+                  type: "string"
+                password:
+                  type: "string"
+                repeat_password:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: ['users.resetPassword.invalid']
+  /users/change_password/{pk}:
+    post:
+      tags:
+        - "users"
+      summary: "cambia la password del usuario"
+      parameters:
+        - in: path
+          name: pk
+          description: id del usuario a cambiar la password
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Objeto que contiene la password actual, la nueva password y su confirmación"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                actual_password:
+                  type: "string"
+                password:
+                  type: "string"
+                repeat_password:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: ['users.changePassword.invalid']
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: "object"
+      security:
+        - jwtAuth: []
+
+
+components:
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+        repeat_email:
+          type: "string"
+        password:
+          type: "string"
+        repeat_password:
+          type: "string"
+        referral_code:
+          type: "string"
+    UserGet:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        email:
+          type: "string"
+        is_active:
+          type: "boolean"
+        created_at:
+          type: "string"
+        updated_at:
+          type: "string"
+
+
