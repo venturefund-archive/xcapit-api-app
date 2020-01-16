@@ -11,6 +11,14 @@ servers:
 tags:
   - name: "users"
     description: "Registro, Login y operaciones sobre el usuario"
+  - name: "profiles"
+    description: "Actualización y recuperación del Perfil del Usuario"
+  - name: "stats"
+    description: "Endpoints para obtener información estadística de la app y los fondos"
+  - name: "terms_and_conditions"
+    description: "Endpoints para aceptar los términos y condiciones"
+  - name: "referrals"
+    description: "Endpoints relacionados a las operaciones con referidos"
 
 paths:
   /users/:
@@ -269,14 +277,68 @@ paths:
                   error_code:
                     type: "string"
                     enum: ['users.changePassword.invalid']
+  /users/is_superuser:
+    get:
+      tags:
+        - "users"
+      summary: "Retorna si el usuario que hizo la consulta es superusuario"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            text/plain:
+              schema:
+                type: "boolean"
         401:
           description: "Unauthorized"
           content:
             application/json:
               schema:
                 type: "object"
+      security:
+        - jwtAuth: []
+  /users/{pk}:
+    get:
+      tags:
+        - "users"
+      summary: "Retorna el usuario de id recibido, con su perfil"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAndProfile"
 
-  /profiles/?user_id=1:
+  /profiles/:
+    get:
+      tags:
+        - "profiles"
+      summary: "Retorna el perfil del usuario del id recibido"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"      
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.retrieve.doesNotExists]
     put:
       tags:
         - "profiles"
@@ -312,24 +374,36 @@ paths:
                   error_code:
                     type: "string"
                     enum: [profiles.update.invalidData, profiles.update.doesNotExists]
+
+  /stats/users/count:
     get:
+      summary: Retorna el número de usuarios registrados total, activos e inactivos
+      description: Recibe como query param opcional el year, si es así el resultado se agrupa por mes
       tags:
-        - "profiles"
-      summary: "Retorna el perfil del usuario del id recibido"
+        - "stats"
       parameters:
         - in: query
-          name: user_id
-          description: id del usuario
-          required: true
+          name: year
+          description: year para agrupar el número de usuarios por mes
+          required: false
           schema:
-            type: "string"      
+            type: "string"
+        - in: query
+          name: month
+          description: numero de mes para filtrar el número de usuarios de ese mes
+          required: false
+          schema:
+            type: "string"
+
       responses:
         200:
           description: "Ok"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Profile"
+                oneOf:
+                  - $ref: "#/components/schemas/UserCount"
+                  - $ref: "#/components/schemas/UserCountYear"
         400:
           description: "Bad request"
           content:
@@ -337,9 +411,180 @@ paths:
               schema:
                 type: "object"
                 properties:
-                  error_code:
+                  error:
                     type: "string"
-                    enum: [profiles.retrieve.doesNotExists]
+  /stats/use/fund_summary_views:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que vieron el resumen de sus fondos."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "integer"
+                example: 10
+  /stats/use/fund_balance_views:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que vieron el balance de sus fondos."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "integer"
+                example: 10
+  /stats/use/login_count:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que loguearon exitosamente y fallaron al intentar loguear."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "integer"
+                    example: 10
+                  failed:
+                    type: "integer"
+                    example: 4
+  /stats/use/open_count:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que abrieron la app estando logueados."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "integer"
+                example: 100
+  /stats/use/fund_actions_count:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que se hicieron acciones sobre el fondo."
+      description: "Si se le envia el user_id filtra por ese usuario particular. Las acciones son 'Pause Fund', 'Resume Fund', 'Finalize Fund', 'Renew Fund'"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Actions"
+  /stats/logs:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna los logs."
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Log"
+    post:
+      tags:
+        - "stats"
+      summary: "Registra un nuevo log de un usuario logueado"
+      description: "El server ingresa id del user, la ip y agent"
+      operationId: ""
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogCreate"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Log"
+  /stats/public_logs:
+    post:
+      tags:
+        - "stats"
+      summary: "Registra un nuevo log del usuario no logueado."
+      description: "El server ingresa id -1, la ip y agent."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogCreate"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Log"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+
 
 components:
   securitySchemes:
@@ -393,4 +638,108 @@ components:
           type: "string"
         direccion:
           type: "string"
-
+    UserAndProfile:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        email:
+          type: "string"
+        is_active:
+          type: "boolean"
+        created_at:
+          type: "string"
+        updated_at:
+          type: "string"
+        profile:
+          type: "object"
+          properties:
+            first_name:
+              type: "string"
+            last_name:
+              type: "string"
+            nro_dni:
+              type: "string"
+            cellphone:
+              type: "string"
+            condicion_iva:
+              type: "string"
+            tipo_factura:
+              type: "string"
+            cuit:
+              type: "string"
+            direccion:
+              type: "string"
+    Log:
+      type: "object"
+      properties:
+        created_at:
+          type: "string"
+          format: "date-time"
+        description:
+          type: "string"
+        button_id:
+          type: "string"
+        component_id:
+          type: "string"
+        agent:
+          type: "string"
+        event_id:
+          type: "string"
+        fired_at:
+          type: "string"
+          format: "date-time"
+        user_id:
+          type: "number"
+        ip:
+          type: "string"
+          oneOf:
+            - format: "ipv4"
+            - format: "ipv6"
+    LogCreate:
+      type: "object"
+      properties:
+        description:
+          type: "string"
+        button_id:
+          type: "string"
+        component_id:
+          type: "string"
+        event_id:
+          type: "string"
+        fired_at:
+          type: "string"
+          format: "date-time"
+    UserCount:
+      type: "object"
+      properties:
+        users:
+          type: "number"
+        active:
+          type: "number"
+        inactive:
+          type: "number"
+    UserCountYear:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          users:
+            type: "number"
+          active:
+            type: "number"
+          inactive:
+            type: "number"
+          month:
+            type: "number"
+    Actions:
+      type: "object"
+      properties:
+        pause_fund:
+          type: "number"
+        resume_fund:
+          type: "number"
+        finalize_fund:
+          type: "number"
+        renew_fund:
+          type: "number"
