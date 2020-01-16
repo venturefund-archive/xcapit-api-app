@@ -585,6 +585,106 @@ paths:
                   error:
                     type: "string"
 
+  /terms_and_conditions/:
+    get:
+      tags:
+        - "terms_and_conditions"
+      description: "Retorna si el usuario acepto los términos y condiciones"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario a consultar los terminos y condiciones
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TermsAndConditions"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [terms_and_conditions.retrieve.doesNotExists]
+    post:
+      tags:
+        - "terms_and_conditions"
+      description: "Guarda la aceptación del usuario de los términos y condiciones"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario que acepta lo terminos y condiciones
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Accept terms & conditions"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TermsAndConditionsPost"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TermsAndConditions"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [terms_and_conditinos.post.invalidData]
+  /terms_and_conditions/{pk}:
+    put:
+      tags:
+        - "terms_and_conditions"
+      description: "Actualiza la aceptación del usuario de los términos y condiciones"
+      parameters:
+        - in: path
+          name: pk
+          description: id de los terminos y condiciones a actualizar
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Accept terms & conditions"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TermsAndConditions"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TermsAndConditions"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [terms_and_conditipns.update.invalidData, terms_and_conditinos.update.doesNotExists]
 
 components:
   securitySchemes:
@@ -743,3 +843,23 @@ components:
           type: "number"
         renew_fund:
           type: "number"
+    TermsAndConditionsPost:
+      type: "object"
+      properties:
+        accepted:
+          type: "boolean"
+    TermsAndConditions:
+      type: "object"
+      properties:
+        id:
+          type: "number"
+        user_id:
+          type: "number"
+        accepted:
+          type: "boolean"
+        created_at:
+          type: "string"
+          format: "date-time"
+        accepted_at:
+          type: "string"
+          format: "date-time"
