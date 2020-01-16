@@ -589,7 +589,7 @@ paths:
     get:
       tags:
         - "terms_and_conditions"
-      description: "Retorna si el usuario acepto los términos y condiciones"
+      summary: "Retorna si el usuario acepto los términos y condiciones"
       parameters:
         - in: query
           name: user_id
@@ -617,7 +617,7 @@ paths:
     post:
       tags:
         - "terms_and_conditions"
-      description: "Guarda la aceptación del usuario de los términos y condiciones"
+      summary: "Guarda la aceptación del usuario de los términos y condiciones"
       parameters:
         - in: query
           name: user_id
@@ -653,7 +653,7 @@ paths:
     put:
       tags:
         - "terms_and_conditions"
-      description: "Actualiza la aceptación del usuario de los términos y condiciones"
+      summary: "Actualiza la aceptación del usuario de los términos y condiciones"
       parameters:
         - in: path
           name: pk
@@ -685,6 +685,65 @@ paths:
                   error_code:
                     type: "string"
                     enum: [terms_and_conditipns.update.invalidData, terms_and_conditinos.update.doesNotExists]
+
+  /referrals/:
+    post:
+      tags:
+        - "referrals"
+      summary: "Guarda el referral"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario con el cual se crea el referido
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "email"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                  email:
+                    type: "string"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Referral"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [referrals.create.emailDidNotSend]
+  /referrals/user_referrals:
+    get:
+      tags:
+        - "referrals"
+      summary: "Retorna los referrals de un usuario paginados y ordenados"
+      parameters:
+        - in: query
+          name: user_id
+          description: id del usuario a consultar los referido
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedReferral"
 
 components:
   securitySchemes:
@@ -863,3 +922,47 @@ components:
         accepted_at:
           type: "string"
           format: "date-time"
+    Referral:
+      type: "object"
+      properties:
+        id:
+          type: "number"
+        user_id:
+          type: "number"
+        accepted:
+          type: "boolean"
+        created_at:
+          type: "string"
+          format: "date-time"
+        accepted_at:
+          type: "string"
+          format: "date-time"
+        email:
+          type: "string"
+          format: "email"
+    PaginatedReferral:
+      type: "object"
+      allOf:
+        - $ref: "#/components/schemas/Pagination"
+        - properties:
+            results:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/Referral"
+    Pagination:
+      type: "object"
+      properties:
+        cursors:
+          type: "object"
+          properties:
+            next:
+              type: "string"
+            previous:
+              type: "string"
+        links:
+          type: "object"
+          properties:
+            next:
+              type: "string"
+            previous:
+              type: "string"
