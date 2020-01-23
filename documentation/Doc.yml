@@ -318,13 +318,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserAndProfile"
 
-  /profiles/:
+  /profiles/user/{user_id}:
     get:
       tags:
         - "profiles"
       summary: "Retorna el perfil del usuario del id recibido"
       parameters:
-        - in: query
+        - in: path
           name: user_id
           description: id del usuario
           required: true
@@ -352,7 +352,7 @@ paths:
         - "profiles"
       summary: "Actualiza el perfil del usuario del id recibido"
       parameters:
-        - in: query
+        - in: path
           name: user_id
           description: id del usuario
           required: true

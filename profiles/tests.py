@@ -48,8 +48,8 @@ class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
 
     def test_retrieve_call(self):
         response = self.client.get(
-            reverse('profiles:retrieve-update-user-profile'),
-            {'user_id': self.user.id},
+            reverse('profiles:retrieve-update-user-profile',
+                    kwargs={'user_id': self.user.id}),
             content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -58,8 +58,8 @@ class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
         self.user.profile.delete()
         self.user.save()
         response = self.client.get(
-            reverse('profiles:retrieve-update-user-profile'),
-            {'user_id': self.user.id},
+            reverse('profiles:retrieve-update-user-profile',
+                    kwargs={'user_id': self.user.id}),
             content_type='application/json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -69,8 +69,8 @@ class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
     def test_update_call(self):
         payload = json.dumps(profile_test_data)
         response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('profiles:retrieve-update-user-profile',
+                    kwargs={'user_id': self.user.id}),
             data=payload,
             content_type='application/json'
         )
@@ -82,8 +82,8 @@ class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
         self.user.save()
         payload = json.dumps(profile_test_data)
         response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('profiles:retrieve-update-user-profile',
+                    kwargs={'user_id': self.user.id}),
             data=payload,
             content_type='application/json',
         )
@@ -95,8 +95,8 @@ class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
         """ Invalid data """
         payload = json.dumps({'invalid': 'data'})
         response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('profiles:retrieve-update-user-profile',
+                    kwargs={'user_id': self.user.id}),
             data=payload,
             content_type='application/json'
         )

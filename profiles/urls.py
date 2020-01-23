@@ -4,5 +4,5 @@ from .views import ProfileAPIView
 app_name = 'profiles'
 
 urlpatterns = [
-    path('', ProfileAPIView.as_view(), name='retrieve-update-user-profile')
+    path('user/<user_id>', ProfileAPIView.as_view(), name='retrieve-update-user-profile')
 ]

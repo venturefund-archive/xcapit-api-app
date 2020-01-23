@@ -11,8 +11,7 @@ class ProfileAPIView(APIView):
 
     serializer_class = ProfileSerializer
 
-    def get(self, request):
-        user_id = request.query_params.get('user_id')
+    def get(self, request, user_id):
         try:
             profile = Profile.objects.select_related('user').get(
                 user_id=user_id)
@@ -27,11 +26,11 @@ class ProfileAPIView(APIView):
                                       'profiles.retrieve.doesNotExists')
         return response
 
-    def put(self, request):
-        user_id = request.query_params.get('user_id')
+    def put(self, request, user_id):
         try:
             profile = Profile.objects.select_related('user').get(
-                user_id=user_id)
+                user_id=user_id
+            )
         except Profile.DoesNotExist:
             profile = None
         if profile is not None:
