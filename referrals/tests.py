@@ -46,21 +46,21 @@ class ReferralsViewSetTestCase(TestCase):
 
     def test_post_referrals(self):
         response = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': self.user.id}),
             data={'email': test_data.get('referral_email1')},
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_post_other_referrals(self):
         response1 = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': self.user.id}),
             data={'email': test_data.get('referral_email2')}
         )
         response2 = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': self.user.id}),
             data={'email': test_data.get('referral_email3')},
         )
         self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
@@ -68,13 +68,13 @@ class ReferralsViewSetTestCase(TestCase):
 
     def test_post_referrals_already_exists(self):
         response1 = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': self.user.id}),
             data={'email': test_data.get('referral_email3')},
         )
         response2 = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': self.user.id}),
             data={'email': test_data.get('referral_email3')},
         )
         self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
@@ -82,8 +82,8 @@ class ReferralsViewSetTestCase(TestCase):
 
     def test_post_referrals_is_an_user(self):
         response = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={self.user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': self.user.id}),
             data={'email': self.user_data["email"]},
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -110,15 +110,16 @@ class UserReferralsViewSetTestCase(TestCase):
 
     def test_user_referrals(self):
         response = self.client.get(
-            reverse('referrals:user-referrals'),
+            reverse('referrals:user-referrals',
+                    kwargs={'user_id': self.user.id}),
             {'cursor': '',
-             'user_id': self.user.id,
              'ordering': '-accepted,email,created_at'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']),
                          Referral.objects.filter(
-                             referral_id=self.user.referral_id).count())
+                             referral_id=self.user.referral_id).count()
+                         )
         self.assertTrue('cursors' in response.data)
         self.assertTrue('links' in response.data)
         self.assertTrue('results' in response.data)

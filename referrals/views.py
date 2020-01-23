@@ -15,8 +15,7 @@ class ReferralsViewSet(ModelViewSet):
     serializer_class = ReferralSerializer
     queryset = Referral.objects.all()
 
-    def create(self, request, *args, **kwargs):
-        user_id = request.query_params.get('user_id')
+    def create(self, request, user_id, *args, **kwargs):
         request.user = User.objects.get(pk=user_id)
         try:
             ReferralEmail.send(request.user, request.data['email'])
@@ -32,8 +31,7 @@ class UserReferralsAPIView(APIView):
     serializer_class = ReferralSerializer
     pagination_class = CustomCursorPaginationAPU
 
-    def get(self, request):
-        user_id = request.query_params.get('user_id')
+    def get(self, request, user_id):
         request.user = User.objects.get(pk=user_id)
         ordering = request.query_params.get('ordering', None)
         paginator = self.pagination_class(ordering=ordering.split(','))

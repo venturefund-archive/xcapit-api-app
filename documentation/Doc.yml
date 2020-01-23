@@ -694,13 +694,13 @@ paths:
                     type: "string"
                     enum: [terms_and_conditipns.update.invalidData, terms_and_conditinos.update.doesNotExists]
 
-  /referrals/:
+  /referrals/user/{user_id}:
     post:
       tags:
         - "referrals"
       summary: "Guarda el referral"
       parameters:
-        - in: query
+        - in: path
           name: user_id
           description: id del usuario con el cual se crea el referido
           required: true
@@ -733,13 +733,13 @@ paths:
                   error_code:
                     type: "string"
                     enum: [referrals.create.emailDidNotSend]
-  /referrals/user_referrals:
+  /referrals/user_referrals/user/{user_id}:
     get:
       tags:
         - "referrals"
       summary: "Retorna los referrals de un usuario paginados y ordenados"
       parameters:
-        - in: query
+        - in: path
           name: user_id
           description: id del usuario a consultar los referido
           required: true

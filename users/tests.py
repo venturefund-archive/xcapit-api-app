@@ -148,8 +148,8 @@ class ResgistrationAPIViewTestCase(TestCase):
             new_user=False
         )
         new_referral_response = self.client.post(
-            reverse('referrals:referrals'),
-            QUERY_STRING=f'user_id={user.id}',
+            reverse('referrals:referrals',
+                    kwargs={'user_id': user.id}),
             data={'email': referral_user.get('email'), 'accepted': True},
             **credentials
         )
@@ -160,9 +160,9 @@ class ResgistrationAPIViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         referrals_response = self.client.get(
-            reverse('referrals:user-referrals'),
+            reverse('referrals:user-referrals',
+                    kwargs={'user_id': user.id}),
             data={'cursor': '',
-                  'user_id': user.id,
                   'ordering': '-accepted,email,created_at'},
             **credentials
         )
