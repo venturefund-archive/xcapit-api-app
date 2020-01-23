@@ -5,7 +5,6 @@ from rest_framework import serializers
 from .models import User
 from .validators import lowercase_validator, uppercase_validator, \
     number_validator
-
 from referrals.services import referral_update
 
 
@@ -142,7 +141,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'is_active', 'is_superuser']
+        fields = ['id', 'email', 'is_active', 'is_superuser', 'referral_id']
 
     def create():
         pass

@@ -195,12 +195,16 @@ class ResgistrationAPIViewTestCase(TestCase):
             reverse('users:user-registration'),
             data=json.dumps(referral_users[0]),
             content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error_code'],
+                         'users.registration.referralIdNotExists')
         response = self.client.post(
             reverse('users:user-registration'),
             data=json.dumps(referral_users[1]),
             content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error_code'],
+                         'users.registration.referralIdNotExists')
 
 
 class EmailValidationTokenAPIViewTestCase(TestCase):

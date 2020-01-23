@@ -49,7 +49,8 @@ paths:
                 properties:
                   error_code:
                     type: "string"
-                    enum: ['users.registration.invalidData']
+                    enum: ['users.registration.invalidData', 
+                           'users.registration.referralIdNotExists']
   /users/email_validation:
     post:
       tags:
@@ -301,6 +302,13 @@ paths:
     get:
       tags:
         - "users"
+      parameters:
+        - in: path
+          name: pk
+          description: id de los terminos y condiciones a actualizar
+          required: true
+          schema:
+            type: "string"
       summary: "Retorna el usuario de id recibido, con su perfil"
       responses:
         200:
@@ -809,6 +817,8 @@ components:
         created_at:
           type: "string"
         updated_at:
+          type: "string"
+        referral_id:
           type: "string"
         profile:
           type: "object"

@@ -28,6 +28,13 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data
+        user['referral_code'] = user.get('referral_code')
+        if user['referral_code'] and not User.objects.filter(
+                referral_id=user['referral_code']
+        ).exists():
+            response = Response({}, status.HTTP_400_BAD_REQUEST)
+            return add_error_code(response,
+                                  'users.registration.referralIdNotExists')
         serializer = self.serializer_class(data=user)
         if not serializer.is_valid():
             response = Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
