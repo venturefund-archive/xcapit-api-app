@@ -12,8 +12,7 @@ class TermsAndConditionsViewSet(ModelViewSet):
     serializer_class = TermsAndConditionsSerializer
     queryset = TermsAndConditions.objects.all()
 
-    def retrieve(self, request, *args, **kwargs):
-        user_id = request.query_params.get('user_id')
+    def retrieve(self, request, user_id, *args, **kwargs):
         request.user = User.objects.get(pk=user_id)
         try:
             data = TermsAndConditions.objects.get(user_id=request.user.id)
@@ -25,8 +24,7 @@ class TermsAndConditionsViewSet(ModelViewSet):
             response = Response(data, status=status.HTTP_200_OK)
         return response
 
-    def create(self, request, *args, **kwargs):
-        user_id = request.query_params.get('user_id')
+    def create(self, request, user_id, *args, **kwargs):
         request.user = User.objects.get(pk=user_id)
         return super(TermsAndConditionsViewSet, self).create(
             request,

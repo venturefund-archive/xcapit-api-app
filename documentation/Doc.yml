@@ -593,13 +593,13 @@ paths:
                   error:
                     type: "string"
 
-  /terms_and_conditions/:
+  /terms_and_conditions/user/{user_id}:
     get:
       tags:
         - "terms_and_conditions"
       summary: "Retorna si el usuario acepto los términos y condiciones"
       parameters:
-        - in: query
+        - in: path
           name: user_id
           description: id del usuario a consultar los terminos y condiciones
           required: true
@@ -627,7 +627,7 @@ paths:
         - "terms_and_conditions"
       summary: "Guarda la aceptación del usuario de los términos y condiciones"
       parameters:
-        - in: query
+        - in: path
           name: user_id
           description: id del usuario que acepta lo terminos y condiciones
           required: true

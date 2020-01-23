@@ -5,7 +5,7 @@ app_name = 'terms_and_conditions'
 
 urlpatterns = [
     path(
-        '',
+        'user/<user_id>',
         TermsAndConditionsViewSet.as_view({'post': 'create', 'get': 'retrieve'}),
         name="terms-and-conditions"
     ),
