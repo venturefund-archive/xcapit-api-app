@@ -733,7 +733,6 @@ paths:
                   error_code:
                     type: "string"
                     enum: [referrals.create.emailDidNotSend]
-  /referrals/user_referrals/user/{user_id}:
     get:
       tags:
         - "referrals"

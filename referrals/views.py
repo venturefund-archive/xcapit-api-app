@@ -13,6 +13,7 @@ add_error_code = ResponseHelper.add_error_code
 
 class ReferralsViewSet(ModelViewSet):
     serializer_class = ReferralSerializer
+    pagination_class = CustomCursorPaginationAPU
     queryset = Referral.objects.all()
 
     def create(self, request, user_id, *args, **kwargs):
@@ -26,12 +27,7 @@ class ReferralsViewSet(ModelViewSet):
         else:
             return super().create(request, *args, **kwargs)
 
-
-class UserReferralsAPIView(APIView):
-    serializer_class = ReferralSerializer
-    pagination_class = CustomCursorPaginationAPU
-
-    def get(self, request, user_id):
+    def retrieve(self, request, user_id):
         request.user = User.objects.get(pk=user_id)
         ordering = request.query_params.get('ordering', None)
         paginator = self.pagination_class(ordering=ordering.split(','))
@@ -40,3 +36,21 @@ class UserReferralsAPIView(APIView):
         referrals_page = paginator.paginate_queryset(referrals, request)
         serializer = self.serializer_class(referrals_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+
+
+
+# class UserReferralsAPIView(APIView):
+#     serializer_class = ReferralSerializer
+#     pagination_class = CustomCursorPaginationAPU
+
+#     def get(self, request, user_id):
+#         request.user = User.objects.get(pk=user_id)
+#         ordering = request.query_params.get('ordering', None)
+#         paginator = self.pagination_class(ordering=ordering.split(','))
+#         referrals = Referral.objects.filter(
+#             referral_id=request.user.referral_id)
+#         referrals_page = paginator.paginate_queryset(referrals, request)
+#         serializer = self.serializer_class(referrals_page, many=True)
+#         return paginator.get_paginated_response(serializer.data)
+    

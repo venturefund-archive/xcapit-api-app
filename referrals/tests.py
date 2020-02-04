@@ -43,6 +43,19 @@ class ReferralsViewSetTestCase(TestCase):
             "password": "referrals1T"
         }
         self.user = create_user(**self.user_data, is_superuser=False)
+        self.user.referral_id = 'ref123'
+        self.user.save()
+        self.credentials = get_credentials(
+            self.client,
+            email='referr@ls.com',
+            password='referrals1T',
+            new_user=False
+        )
+        test_referals[0]['referral_id'] = self.user.referral_id
+        test_referals[1]['referral_id'] = self.user.referral_id
+        test_referals[2]['referral_id'] = self.user.referral_id
+        objs = [Referral(**referral) for referral in test_referals]
+        Referral.objects.bulk_create(objs)
 
     def test_post_referrals(self):
         response = self.client.post(
@@ -88,29 +101,9 @@ class ReferralsViewSetTestCase(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
-@tag('get_referrals')
-class UserReferralsViewSetTestCase(TestCase):
-
-    def setUp(self) -> None:
-        self.user = create_user('referr@ls.com', 'referrals1T', False)
-        self.user.referral_id = 'ref123'
-        self.user.save()
-        self.credentials = get_credentials(
-            self.client,
-            email='referr@ls.com',
-            password='referrals1T',
-            new_user=False
-        )
-        test_referals[0]['referral_id'] = self.user.referral_id
-        test_referals[1]['referral_id'] = self.user.referral_id
-        test_referals[2]['referral_id'] = self.user.referral_id
-        objs = [Referral(**referral) for referral in test_referals]
-        Referral.objects.bulk_create(objs)
-
-    def test_user_referrals(self):
+    def test_get_referrals(self):
         response = self.client.get(
-            reverse('referrals:user-referrals',
+            reverse('referrals:referrals',
                     kwargs={'user_id': self.user.id}),
             {'cursor': '',
              'ordering': '-accepted,email,created_at'},
