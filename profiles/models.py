@@ -23,6 +23,8 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     updated_at = models.DateTimeField(auto_now=True)
+    
+    pais = models.CharField(max_length=150, blank=True)
 
     def __str__(self):
         return self.user.email

@@ -8,6 +8,20 @@ from .serializers import ProfileSerializer
 from users.test_utils import get_credentials
 from users.models import User
 
+personal_data = {
+    'nro_dni': '',
+    'cellphone': '',
+    'cuit': '',
+    'direccion': '',
+}
+
+fiscal_data = {
+    'condicion_iva': '',
+    'tipo_factura': '',
+    'cuit': '',
+    'pais': ''
+}
+
 profile_test_data = {
     'first_name': '',
     'last_name': '',
@@ -16,7 +30,8 @@ profile_test_data = {
     'condicion_iva': '',
     'tipo_factura': '',
     'cuit': '',
-    'direccion': ''
+    'direccion': '',
+    'pais': ''
 }
 
 user_test_data = {
@@ -91,18 +106,27 @@ class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
         self.assertEqual(response.json()['error_code'],
                          'profiles.update.doesNotExists')
 
-    def test_update_call_invalid_2(self):
+    def test_update_personal_data(self):
         """ Invalid data """
-        payload = json.dumps({'invalid': 'data'})
+        payload = json.dumps(personal_data)
         response = self.client.put(
             reverse('profiles:retrieve-update-user-profile',
                     kwargs={'user_id': self.user.id}),
             data=payload,
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'],
-                         'profiles.update.invalidData')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_fiscal_data(self):
+        """ Invalid data """
+        payload = json.dumps(fiscal_data)
+        response = self.client.put(
+            reverse('profiles:retrieve-update-user-profile',
+                    kwargs={'user_id': self.user.id}),
+            data=payload,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class ProfileSerializerTestCase(TestCase):
@@ -120,7 +144,7 @@ class ProfileSerializerTestCase(TestCase):
         self.assertCountEqual(data.keys(),
                               ['email', 'first_name', 'last_name',
                                'nro_dni', 'cellphone', 'condicion_iva',
-                               'tipo_factura', 'cuit', 'direccion', ])
+                               'tipo_factura', 'cuit', 'direccion', 'pais'])
 
     def test_email_field_content(self):
         data = self.serializer.data
@@ -130,6 +154,37 @@ class ProfileSerializerTestCase(TestCase):
         serializer = ProfileSerializer(data=profile_test_data)
         self.assertTrue(serializer.is_valid())
 
+    def test_valid_personal_data_serializer(self):
+        serializer = ProfileSerializer(data=personal_data)
+        self.assertTrue(serializer.is_valid())
+
+    def test_valid_fiscal_data_serializer(self):
+        serializer = ProfileSerializer(data=fiscal_data)
+        self.assertTrue(serializer.is_valid())
+
+    def test_valid_name_keys_data_serializer(self):
+        serializer = ProfileSerializer(
+            data={'first_name': 'Test', 'last_name': 'Test'})
+        self.assertTrue(serializer.is_valid())
+
     def test_invalid_data_serializer(self):
-        serializer = ProfileSerializer(data={'asdf': 'asdf'})
+        serializer = ProfileSerializer(data={'asdas': 'asdas'})
         self.assertFalse(serializer.is_valid())
+
+    def test_personal_invalid_data_serializer(self):
+        personal_data_invalid = personal_data.copy()
+        personal_data_invalid.pop('cellphone')
+        serializer = ProfileSerializer(data=personal_data_invalid)
+        self.assertFalse(serializer.is_valid())
+
+    def test_fiscal_invalid_data_serializer(self):
+        fiscal_data_invalid = fiscal_data.copy()
+        fiscal_data_invalid.pop('cuit')
+        serializer = ProfileSerializer(data=fiscal_data_invalid)
+        self.assertFalse(serializer.is_valid())
+
+    def test_invalid_name_keys_data_serializer(self):
+        serializer = ProfileSerializer(
+            data={'last_name': 'Test'})
+        self.assertFalse(serializer.is_valid())
+

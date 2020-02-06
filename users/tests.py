@@ -160,7 +160,7 @@ class ResgistrationAPIViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         referrals_response = self.client.get(
-            reverse('referrals:user-referrals',
+            reverse('referrals:referrals',
                     kwargs={'user_id': user.id}),
             data={'cursor': '',
                   'ordering': '-accepted,email,created_at'},

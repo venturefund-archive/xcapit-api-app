@@ -804,6 +804,8 @@ components:
           type: "string"
         direccion:
           type: "string"
+        pais:
+          type: "string"
     UserAndProfile:
       type: "object"
       properties:
