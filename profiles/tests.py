@@ -188,3 +188,235 @@ class ProfileSerializerTestCase(TestCase):
             data={'last_name': 'Test'})
         self.assertFalse(serializer.is_valid())
 
+
+class ProfileValidAPIViewTestCase(TestCase):
+    def setUp(self):
+
+        self.invalid_profile = profile_test_data
+        self.valid_profile = {
+            'first_name': 'Test First',
+            'last_name': 'Test Last',
+            'nro_dni': '321332155',
+            'cellphone': '2313323213',
+            'condicion_iva': 'Sujeto no Categorizad',
+            'tipo_factura': 'B',
+            'cuit': '23256585849',
+            'direccion': 'Test address',
+            'pais': 'Argentina'
+        }
+        self.user = User(email=user_test_data.get(
+            'email'), is_active=True)
+        self.user.set_password(user_test_data.get('password'))
+        self.user.save()
+
+    def test_valid(self):
+        """ All valid """
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **self.valid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_all(self):
+        """ All invalid """
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **self.invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_first_name(self):
+        """ First name invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['first_name'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_last_name(self):
+        """ Last name invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['last_name'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_nro_dni(self):
+        """ nro_dni invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['nro_dni'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_nro_dni(self):
+        """ nro_dni invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['nro_dni'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_cellphone(self):
+        """ cellphone invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['cellphone'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_condicion_iva(self):
+        """ condicion_iva invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['condicion_iva'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_tipo_factura(self):
+        """ tipo_factura invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['tipo_factura'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_cuit(self):
+        """ cuit invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['cuit'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_direccion(self):
+        """ direccion invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['direccion'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_pais(self):
+        """ pais invalid """
+        invalid_profile = self.invalid_profile.copy()
+        invalid_profile['pais'] = ''
+        Profile.objects.filter(pk=self.user.profile.id).update(
+            **invalid_profile
+        )
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': self.user.id
+                    }
+                    )
+        )
+        self.assertEqual(response.json()['valid'], False)
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_not_exists(self):
+        """ pais invalid """
+        response = self.client.get(
+            reverse('profiles:valid',
+                    kwargs={
+                        'user_id': 600
+                    }
+                    )
+        )
+        self.assertEqual(response.status_code, 204)

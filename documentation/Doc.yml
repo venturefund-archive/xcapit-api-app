@@ -382,6 +382,31 @@ paths:
                   error_code:
                     type: "string"
                     enum: [profiles.update.invalidData, profiles.update.doesNotExists]
+  /profiles/user/{user_id}/valid:
+    get:
+      tags:
+        - "profiles"
+      summary: "Retorna si el perfil del usuario del id recibido es valido"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"      
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  valid: 
+                    type: "boolean"
+        204:
+          description: "No content"
+    
 
   /stats/users/count:
     get:
