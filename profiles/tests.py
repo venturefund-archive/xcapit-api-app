@@ -11,7 +11,8 @@ from users.models import User
 personal_data = {
     'nro_dni': '',
     'cellphone': '',
-    'cuit': '',
+    'first_name': '',
+    'last_name': '',
     'direccion': '',
 }
 

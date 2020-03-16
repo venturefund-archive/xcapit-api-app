@@ -70,7 +70,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         personal_data_keys = {
-            'nro_dni', 'cellphone', 'direccion'
+            'nro_dni', 'cellphone', 'direccion',
+            'first_name', 'last_name'
         }
 
         fiscal_data_keys = {
