@@ -69,12 +69,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        name_keys = {
-            'first_name', 'last_name'
-        }
-
         personal_data_keys = {
-            'nro_dni', 'cellphone', 'cuit', 'direccion'
+            'nro_dni', 'cellphone', 'direccion'
         }
 
         fiscal_data_keys = {
@@ -94,13 +90,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         if all(key in data.keys() for key in fiscal_data_keys):
             return data
 
-        if all(key in data.keys() for key in name_keys):
-            return data
-
         if all(key in data.keys() for key in all_keys):
             return data
 
-        raise serializers.ValidationError('This field must be an even number.')
+        raise serializers.ValidationError('You can\'t update with this field combination.')
 
 
 class ProfileValidSerializer(serializers.ModelSerializer):

@@ -164,7 +164,7 @@ class ProfileSerializerTestCase(TestCase):
 
     def test_valid_name_keys_data_serializer(self):
         serializer = ProfileSerializer(
-            data={'first_name': 'Test', 'last_name': 'Test'})
+            data=personal_data)
         self.assertTrue(serializer.is_valid())
 
     def test_invalid_data_serializer(self):
@@ -191,8 +191,9 @@ class ProfileSerializerTestCase(TestCase):
 
 class ProfileValidAPIViewTestCase(TestCase):
     def setUp(self):
-
-        self.invalid_profile = profile_test_data
+        self.invalid_profile = profile_test_data.copy()
+        if 'email' in self.invalid_profile:
+            self.invalid_profile.pop('email')
         self.valid_profile = {
             'first_name': 'Test First',
             'last_name': 'Test Last',
@@ -411,7 +412,7 @@ class ProfileValidAPIViewTestCase(TestCase):
 
 
     def test_not_exists(self):
-        """ pais invalid """
+        """ No existe el user """
         response = self.client.get(
             reverse('profiles:valid',
                     kwargs={
