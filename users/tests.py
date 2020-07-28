@@ -5,7 +5,7 @@ from django.test import TestCase, tag
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_text, force_bytes
+from django.utils.encoding import force_str, force_bytes
 from django.urls import reverse
 from django.utils.safestring import SafeText
 
@@ -220,7 +220,7 @@ class EmailValidationTokenAPIViewTestCase(TestCase):
         user = User(email="test13@test.com", password="test")
         user.save()
         self.token = email_validation_token.make_token(user)
-        self.uidb64 = force_text(urlsafe_base64_encode(force_bytes(user.pk)))
+        self.uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
 
     def test_email_validation_valid(self):
         payload = json.dumps({
@@ -256,7 +256,7 @@ class SendEmailValidationTokenAPIViewTestCase(TestCase):
         user = User(email="test13@test.com", password="test")
         user.save()
         self.token = email_validation_token.make_token(user)
-        self.uidb64 = force_text(urlsafe_base64_encode(force_bytes(user.pk)))
+        self.uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
 
     @patch('requests.post')
     def test_send_email_validation_valid(self, mock_post):
@@ -512,7 +512,7 @@ class ResetPasswordAPIViewTestCase(TestCase):
         user = User(email="test13@test.com", password="test")
         user.save()
         self.token = email_validation_token.make_token(user)
-        self.uidb64 = force_text(urlsafe_base64_encode(force_bytes(user.pk)))
+        self.uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
 
     def test_reset_password_valid(self):
         payload = json.dumps({
@@ -558,7 +558,7 @@ class ResetPasswordSerializerTestCase(TestCase):
         )
         self.user.save()
         self.serializer_data = {
-            'token': force_text(urlsafe_base64_encode(force_bytes(self.user.pk))),
+            'token': force_str(urlsafe_base64_encode(force_bytes(self.user.pk))),
             'uidb64': email_validation_token.make_token(self.user),
             'password': self.new_password,
             'repeat_password': self.new_password

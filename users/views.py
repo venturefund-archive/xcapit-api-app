@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from .serializer import RegistrationSerializer, ResetPasswordSerializer, \
     ChangePasswordSerializer
@@ -53,7 +53,8 @@ class EmailValidationTokenAPIView(APIView):
 
     def post(self, request):
         try:
-            uid = force_text(urlsafe_base64_decode(request.data.get('uidb64', '')))
+            uid = force_str(urlsafe_base64_decode(
+                request.data.get('uidb64', '')))
             user = User.objects.get(pk=uid)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
@@ -76,7 +77,8 @@ class SendEmailValidationTokenAPIView(APIView):
 
     def post(self, request):
         try:
-            uid = force_text(urlsafe_base64_decode(request.data.get('uidb64', '')))
+            uid = force_str(urlsafe_base64_decode(
+                request.data.get('uidb64', '')))
             user = User.objects.get(pk=uid)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
@@ -131,7 +133,7 @@ class ResetPasswordAPIView(APIView):
 
     def post(self, request):
         try:
-            uid = force_text(urlsafe_base64_decode(
+            uid = force_str(urlsafe_base64_decode(
                 request.data.get('uidb64', '')))
             user = User.objects.get(pk=uid)
             serializer = self.serializer_class(data=request.data)
