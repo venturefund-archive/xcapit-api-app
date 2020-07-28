@@ -160,3 +160,5 @@ PWA_DOMAIN = 'http://localhost:8100'
 
 REFERRAL_EMAIL_FROM = 'developers@wallcryptostreet.com'
 REFERRAL_EMAIL_SUBJECT = 'Título del email'
+
+API_NOTIFICATIONS = os.environ.get('API_NOTIFICATIONS')
