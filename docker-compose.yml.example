@@ -9,13 +9,12 @@ services:
     command: ["./wait-for.sh", "postgres-api-app:5432", "-t", "20", "--", "python3", "manage.py", "runserver", "0.0.0.0:8000"]
     ports:
       - 9060:8000
-    networks:
-      - wcsnet
     depends_on:
       - postgres-api-app
-    environment:
-      - DEBUG=1
-      - SECRET=e6c8dc8402dc3a1b3ca85304d88622835a80c75dc60cf4a88e5181c556d810f0
+    env_file:
+      - ./variables.env
+    extra_hosts:
+      - "wrapperbotadmin:tu-ip"
 
   postgres-api-app:
     image: postgres:12.0
@@ -25,11 +24,3 @@ services:
       - 5434:5432
     environment:
       POSTGRES_PASSWORD: xcap123
-    networks:
-      - wcsnet
-
-
-
-networks:
-  wcsnet:
-    external: true
