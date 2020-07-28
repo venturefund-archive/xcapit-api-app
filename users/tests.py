@@ -1,4 +1,6 @@
 import json
+from unittest.mock import patch
+
 from django.test import TestCase, tag
 from rest_framework import status
 from rest_framework.serializers import ValidationError
@@ -31,9 +33,11 @@ class UserTestCase(TestCase):
 
 
 @tag('user_registration')
-class ResgistrationAPIViewTestCase(TestCase):
-
-    def test_user_registration_valid(self):
+class RegistrationAPIViewTestCase(TestCase):
+    @patch('requests.post')
+    def test_user_registration_valid(self, mock_post):
+        mock_post.return_value.json.return_value = {}
+        mock_post.return_value.status_code = status.HTTP_200_OK
         payload = json.dumps({
             'email': 'test6@test.com',
             'repeat_email': 'test6@test.com',
@@ -126,7 +130,10 @@ class ResgistrationAPIViewTestCase(TestCase):
         self.assertEqual(response.json()['error_code'],
                          'users.registration.invalidData')
 
-    def test_referral_user_registration_valid(self):
+    @patch('requests.post')
+    def test_referral_user_registration_valid(self, mock_post):
+        mock_post.return_value.json.return_value = {}
+        mock_post.return_value.status_code = status.HTTP_200_OK
         referral_user = {
             'email': 'test7@test.com',
             'repeat_email': 'test7@test.com',
@@ -251,7 +258,10 @@ class SendEmailValidationTokenAPIViewTestCase(TestCase):
         self.token = email_validation_token.make_token(user)
         self.uidb64 = force_text(urlsafe_base64_encode(force_bytes(user.pk)))
 
-    def test_send_email_validation_valid(self):
+    @patch('requests.post')
+    def test_send_email_validation_valid(self, mock_post):
+        mock_post.return_value.json.return_value = {}
+        mock_post.return_value.status_code = status.HTTP_200_OK
         payload = json.dumps({
             'uidb64': self.uidb64
         })
@@ -272,8 +282,7 @@ class SendEmailValidationTokenAPIViewTestCase(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'],
-                         'users.sendEmailValidationToken.user')
+        self.assertEqual(response.json()['error_code'], 'users.sendEmailValidationToken.user')
 
 
 @tag('user_registration_serializer')
@@ -423,13 +432,12 @@ class EmailValidationTestCase(TestCase):
         self.user.save()
 
     def test_get_validation_message_ok(self):
-        message = EmailValidation.get_validation_message(self.user)
-        self.assertIs(type(message), SafeText)
-        self.assertGreater(len(message), 0)
-
-    def test_get_validation_message_error(self):
-        with self.assertRaises(AttributeError):
-            EmailValidation.get_validation_message('')
+        data = EmailValidation._generate_validation_data(self.user)
+        self.assertIs(type(data), dict)
+        self.assertTrue('uid' in data)
+        self.assertTrue('email' in data)
+        self.assertTrue('token' in data)
+        self.assertTrue('domain' in data)
 
 
 @tag('reset_password_email')

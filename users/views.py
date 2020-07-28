@@ -1,3 +1,4 @@
+from core.clients import NotificationsClient
 from .serializer import CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -33,8 +34,7 @@ class RegistrationAPIView(APIView):
                 referral_id=user['referral_code']
         ).exists():
             response = Response({}, status.HTTP_400_BAD_REQUEST)
-            return add_error_code(response,
-                                  'users.registration.referralIdNotExists')
+            return add_error_code(response, 'users.registration.referralIdNotExists')
         serializer = self.serializer_class(data=user)
         if not serializer.is_valid():
             response = Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
@@ -42,7 +42,8 @@ class RegistrationAPIView(APIView):
         user_instance = serializer.save()
         user_instance.referral_id = get_hashid(user_instance.pk)
         user_instance.save()
-        EmailValidation.send(user_instance)
+        email_validation = EmailValidation()
+        email_validation.send(user_instance)
         return Response({}, status=status.HTTP_201_CREATED)
 
 
@@ -52,8 +53,7 @@ class EmailValidationTokenAPIView(APIView):
 
     def post(self, request):
         try:
-            uid = force_text(urlsafe_base64_decode(
-                request.data.get('uidb64', '')))
+            uid = force_text(urlsafe_base64_decode(request.data.get('uidb64', '')))
             user = User.objects.get(pk=uid)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
@@ -72,21 +72,21 @@ class SendEmailValidationTokenAPIView(APIView):
 
     permission_classes = (AllowAny,)
     authentication_classes = ()
+    notifications_client = NotificationsClient()
 
     def post(self, request):
         try:
-            uid = force_text(urlsafe_base64_decode(
-                request.data.get('uidb64', '')))
+            uid = force_text(urlsafe_base64_decode(request.data.get('uidb64', '')))
             user = User.objects.get(pk=uid)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         if user is not None:
-            EmailValidation.send(user)
+            email_validation = EmailValidation()
+            email_validation.send(user)
             return Response({}, status.HTTP_200_OK)
         else:
             response = Response({}, status.HTTP_400_BAD_REQUEST)
-            return add_error_code(response,
-                                  'users.sendEmailValidationToken.user')
+            return add_error_code(response, 'users.sendEmailValidationToken.user')
 
 
 class ObtainJWTView(TokenObtainPairView):
