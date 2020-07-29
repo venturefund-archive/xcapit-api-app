@@ -5,6 +5,7 @@ from django.utils.encoding import force_bytes, force_str
 from .tokens import email_validation_token
 from api_app.settings import EMAIL_VALIDATION_FROM, EMAIL_VALIDATION_SUBJECT, \
     PWA_DOMAIN, RESET_PASSWORD_EMAIL_FROM, RESET_PASSWORD_EMAIL_SUBJECT
+from core.clients import NotificationsClient
 
 
 class EmailValidation:

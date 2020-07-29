@@ -9,6 +9,6 @@ class NotificationsClient:
         return f'{API_NOTIFICATIONS}{last_url_part}'
 
     def send_email_validation(self, data):
-        endpoint = self._generate_endpoint('send-email-validation/')
+        endpoint = self._generate_endpoint('notifications/send-email-validation/')
         return requests.post(endpoint, json=data)
 
