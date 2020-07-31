@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils.translation import gettext_lazy as _
 
 
 class UserManager(BaseUserManager):
@@ -15,6 +16,21 @@ class UserManager(BaseUserManager):
 
         return user
 
+    def create_superuser(self, email, password):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
+        user = self.create_user(email,
+            password=password
+        )
+
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save(using=self._db)
+        return user
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = None
@@ -28,6 +44,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     referral_id = models.CharField(max_length=250, blank=True)
+
+    is_staff = models.BooleanField(_('staff status'), default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
