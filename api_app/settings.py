@@ -156,7 +156,7 @@ EMAIL_VALIDATION_SUBJECT = 'Título del email'
 RESET_PASSWORD_EMAIL_FROM = 'developers@wallcryptostreet.com'
 RESET_PASSWORD_EMAIL_SUBJECT = 'Título del email'
 
-PWA_DOMAIN = 'http://localhost:8100'
+PWA_DOMAIN = os.environ.get('PWA_DOMAIN')
 
 REFERRAL_EMAIL_FROM = 'developers@wallcryptostreet.com'
 REFERRAL_EMAIL_SUBJECT = 'Título del email'
