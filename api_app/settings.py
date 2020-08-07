@@ -162,3 +162,31 @@ REFERRAL_EMAIL_FROM = 'developers@wallcryptostreet.com'
 REFERRAL_EMAIL_SUBJECT = 'Título del email'
 
 API_NOTIFICATIONS = os.environ.get('API_NOTIFICATIONS')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s [%(filename)s]-[%(levelname)s]: %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG')
+        },
+        'django': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG')
+        },
+    },
+}
