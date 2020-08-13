@@ -1,6 +1,7 @@
 import json
 from unittest.mock import patch
 
+import pytest
 from django.test import TestCase, tag
 from rest_framework import status
 from rest_framework.serializers import ValidationError
@@ -721,3 +722,25 @@ class GetUserAPIViewTestCase(TestCase):
             reverse('users:get-user', kwargs={'pk': self.user.pk + 1})
         )
         self.assertEqual(response.status_code, 404)
+
+
+@pytest.mark.wip
+@pytest.mark.parametrize(
+    'email, expected_status_code, expected_body',
+    [
+        ('exists@test.com', status.HTTP_200_OK, {
+            'email': 'exists@test.com',
+            'is_active': False,
+            'is_superuser': False,
+            'referral_id': ''
+        }),
+        ('noexists@test.com', status.HTTP_404_NOT_FOUND, {}),
+    ])
+@pytest.mark.django_db
+def test_by_email_api_view(client, email, expected_status_code, expected_body):
+    User.objects.create_user('exists@test.com', 'TestPass1234')
+    endpoint = reverse('users:by-email', kwargs={'email': email})
+    response = client.get(endpoint)
+    response.json().pop('id', None)
+    assert response.status_code == expected_status_code
+    assert response.json() == expected_body

@@ -317,6 +317,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserAndProfile"
+  /users/by_email/{email}:
+    get:
+        tags:
+          - 'users'
+        summary: 'Retorna el usuario con el email recibido'
+        parameters:
+          - in: 'path'
+            name: 'email'
+            description: 'Email del usuario a filtrar'
+            required: true
+            schema:
+              type: 'string'
+              format: 'email'
+        responses:
+          200:
+            description: 'Ok'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UserGet"
+          404:
+            description: 'No existe un usuario con el email recibido'
+            content:
+              application/json:
+                schema:
+                  type: 'object'
 
   /profiles/user/{user_id}:
     get:
@@ -804,12 +830,18 @@ components:
           type: "integer"
         email:
           type: "string"
+          format: "email"
         is_active:
           type: "boolean"
         created_at:
           type: "string"
         updated_at:
           type: "string"
+        is_superuser:
+          type: "boolean"
+        is_staff:
+          type: "boolean"
+
     Profile:
       type: "object"
       properties:

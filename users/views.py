@@ -44,7 +44,31 @@ class RegistrationAPIView(APIView):
         user_instance.save()
         email_validation = EmailValidation()
         email_validation.send(user_instance)
-        return Response({}, status=status.HTTP_201_CREATED)
+        user_serializer = UserSerializer(instance=user_instance)
+        return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ByEmailAPIView(APIView):
+    serializer_class = UserSerializer
+
+    def get(self, request, email):
+        """ Get user by email
+
+        Parameters
+        ----------
+        email: str
+            User email
+
+        Returns
+        -------
+
+        """
+        users = User.objects.filter(email=email)
+        if not users.exists():
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        user = users.first()
+        serializer = self.serializer_class(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class EmailValidationTokenAPIView(APIView):
