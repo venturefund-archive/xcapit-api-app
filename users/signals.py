@@ -25,8 +25,10 @@ def log_user_logged_in_success(sender, request, user, **kwargs):
 
 @receiver(user_login_failed)
 def log_user_logged_in_failed(sender, request, credentials, **kwargs):
+    email = credentials.get('email', credentials.get('username'))
+
     LoginHistory.objects.create(
         ip=RequestInfoHelper.get_client_ip(request),
-        email=credentials['email'],
+        email=email,
         agent=RequestInfoHelper.get_user_agent_info(request),
         logged=False)
