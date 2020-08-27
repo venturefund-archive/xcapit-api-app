@@ -17,40 +17,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
         validators=[lowercase_validator, uppercase_validator, number_validator]
     )
 
-    repeat_password = serializers.CharField(write_only=True)
-
-    repeat_email = serializers.CharField(write_only=True)
-
     referral_code = serializers.CharField(write_only=True, allow_null=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'repeat_password',
-                  'repeat_email', 'referral_code']
+        fields = ['email', 'password', 'referral_code']
 
     def create(self, validated_data):
         referral_code = validated_data['referral_code']
-        email = validated_data['repeat_email']
+        email = validated_data['email']
         del validated_data['referral_code']
-        del validated_data['repeat_password']
-        del validated_data['repeat_email']
         result = User.objects.create_user(**validated_data)
         referral_update(referral_code=referral_code, email=email)
         return result
-
-    def validate(self, data):
-        self.fields_match_validator(
-            data, 'password', 'repeat_password', 'Las passwords deben coincidir')
-        self.fields_match_validator(
-            data, 'email', 'repeat_email', 'Las passwords deben coincidir')
-        return data
-
-    @staticmethod
-    def fields_match_validator(data, field_name1, field_name2, error_message=''):
-        field1 = data.get(field_name1)
-        field2 = data.get(field_name2)
-        if field1 != field2:
-            raise serializers.ValidationError(error_message)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
