@@ -41,9 +41,7 @@ class RegistrationAPIViewTestCase(TestCase):
         mock_post.return_value.status_code = status.HTTP_200_OK
         payload = json.dumps({
             'email': 'test6@test.com',
-            'repeat_email': 'test6@test.com',
             'password': 'asdfF5',
-            'repeat_password': 'asdfF5',
             'referral_code': None
         })
         response = self.client.post(
@@ -56,9 +54,7 @@ class RegistrationAPIViewTestCase(TestCase):
 
     def test_user_registration_invalid_number_pass(self):
         payload = json.dumps({'email': 'test6@test.com',
-                              'repeat_email': 'test6@test.com',
-                              'password': 'asdfFF',
-                              'repeat_password': 'asdfFF'})
+                              'password': 'asdfFF'})
         response = self.client.post(
             reverse('users:user-registration'), data=payload,
             content_type='application/json')
@@ -69,9 +65,7 @@ class RegistrationAPIViewTestCase(TestCase):
 
     def test_user_registration_invalid_upper_pass(self):
         payload = json.dumps({'email': 'test6@test.com',
-                              'repeat_email': 'test6@test.com',
-                              'password': 'asdf55',
-                              'repeat_password': 'asdf55'})
+                              'password': 'asdf55'})
         response = self.client.post(
             reverse('users:user-registration'), data=payload,
             content_type='application/json')
@@ -82,9 +76,7 @@ class RegistrationAPIViewTestCase(TestCase):
 
     def test_user_registration_invalid_lower_pass(self):
         payload = json.dumps({'email': 'test6@test.com',
-                              'repeat_email': 'test6@test.com',
-                              'password': '1234F1',
-                              'repeat_password': '1234F1'})
+                              'password': '1234F1'})
         response = self.client.post(
             reverse('users:user-registration'), data=payload,
             content_type='application/json')
@@ -95,34 +87,7 @@ class RegistrationAPIViewTestCase(TestCase):
 
     def test_user_registration_invalid_min_pass(self):
         payload = json.dumps({'email': 'test6@test.com',
-                              'repeat_email': 'test6@test.com',
-                              'password': 'asdf',
-                              'repeat_password': 'asdf'})
-        response = self.client.post(
-            reverse('users:user-registration'), data=payload,
-            content_type='application/json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'],
-                         'users.registration.invalidData')
-
-    def test_user_registration_invalid_repeat_pass(self):
-        payload = json.dumps({'email': 'test6@test.com',
-                              'repeat_email': 'test6@test.com',
-                              'password': 'asdfF5',
-                              'repeat_password': 'asdfF6'})
-        response = self.client.post(
-            reverse('users:user-registration'), data=payload,
-            content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'],
-                         'users.registration.invalidData')
-
-    def test_user_registration_invalid_repeat_email(self):
-        payload = json.dumps({'email': 'test6@test.com',
-                              'repeat_email': 'test5@test.com',
-                              'password': 'asdfF6',
-                              'repeat_password': 'asdfF6'})
+                              'password': 'asdf'})
         response = self.client.post(
             reverse('users:user-registration'), data=payload,
             content_type='application/json')
@@ -137,9 +102,7 @@ class RegistrationAPIViewTestCase(TestCase):
         mock_post.return_value.status_code = status.HTTP_200_OK
         referral_user = {
             'email': 'test7@test.com',
-            'repeat_email': 'test7@test.com',
             'password': 'asdfF5',
-            'repeat_password': 'asdfF5',
             'referral_code': None
         }
         user = create_user(
@@ -188,15 +151,11 @@ class RegistrationAPIViewTestCase(TestCase):
     def test_referral_user_registration_with_invalid_referral_code(self):
         referral_users = [{
             'email': 'test8@test.com',
-            'repeat_email': 'test8@test.com',
             'password': 'asdfF5',
-            'repeat_password': 'asdfF5',
             'referral_code': 'bad_code'
         }, {
             'email': 'test9@test.com',
-            'repeat_email': 'test9@test.com',
             'password': 'asdfF5',
-            'repeat_password': 'asdfF5',
             'referral_code': 'MQ'
         }]
         response = self.client.post(
@@ -294,9 +253,7 @@ class RegistrationSerializerTestCase(TestCase):
             'email': 'test6@test.com', 'password': 'asdfF5'}
         self.serializer_data = {
             'email': 'test7@test.com',
-            'repeat_email': 'test7@test.com',
             'password': 'asdfF5',
-            'repeat_password': 'asdfF5',
             'referral_code': None
         }
 
@@ -322,7 +279,7 @@ class RegistrationSerializerTestCase(TestCase):
     def test_invalid_data_exception(self):
         serializer = RegistrationSerializer(data=self.user_attributes)
         with self.assertRaises(ValidationError):
-            serializer.validate(data=self.user_attributes)
+            serializer.is_valid(raise_exception=True)
 
     def test_create_serializer(self):
         serializer = RegistrationSerializer(data=self.serializer_data)
