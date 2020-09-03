@@ -24,4 +24,5 @@ urlpatterns = [
     path('v1/api/terms_and_conditions/', include('terms_and_conditions.urls', namespace='terms_and_conditions')),
     path('v1/api/administration/', include('administration.urls', namespace='administration')),
     path('v1/api/admin/', admin.site.urls),
+    path('', include('django_prometheus.urls')),
 ]

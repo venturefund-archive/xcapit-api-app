@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_prometheus',
     'users.apps.UsersConfig',
     'stats.apps.StatsConfig',
     'profiles.apps.ProfilesConfig',
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'api_app.urls'
@@ -162,6 +165,9 @@ REFERRAL_EMAIL_FROM = 'developers@wallcryptostreet.com'
 REFERRAL_EMAIL_SUBJECT = 'Título del email'
 
 API_NOTIFICATIONS = os.environ.get('API_NOTIFICATIONS')
+
+PROMETHEUS_EXPORT_MIGRATIONS = False
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
