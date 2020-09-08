@@ -12,3 +12,7 @@ class NotificationsClient:
         endpoint = self._generate_endpoint('notifications/send-email-validation/')
         return requests.post(endpoint, json=data)
 
+    def send_referral_email(self, data: dict) -> requests.Response:
+        endpoint = self._generate_endpoint('notifications/send-referral-email/')
+        return requests.post(endpoint, json=data)
+

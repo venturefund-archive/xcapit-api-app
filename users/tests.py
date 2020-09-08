@@ -681,7 +681,6 @@ class GetUserAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-@pytest.mark.wip
 @pytest.mark.parametrize(
     'email, expected_status_code, expected_body',
     [
