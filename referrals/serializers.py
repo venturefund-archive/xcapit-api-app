@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from .models import Referral
 from .validators import AlreadyExistUserEmailValidator
@@ -19,6 +20,11 @@ class ReferralSerializer(serializers.ModelSerializer):
             )
         ]
     )
+
+    def parse_error(self):
+        if len(self.errors['email']):
+            return {'error_code': self.errors['email'][0]}
+        return {}
 
     def create(self, validated_data):
         request = self.context.get('request')

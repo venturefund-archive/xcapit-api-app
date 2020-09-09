@@ -783,7 +783,10 @@ paths:
                 properties:
                   error_code:
                     type: "string"
-                    enum: [referrals.create.emailDidNotSend]
+                    enum: [referrals.create.emailDidNotSend,
+                           referrals.create.referralAlreadyExist,
+                           referrals.create.referralAlreadyExistsAsUser
+                    ]
     get:
       tags:
         - "referrals"

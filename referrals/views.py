@@ -1,11 +1,13 @@
+from django.utils.encoding import force_str, force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from api_app.settings import PWA_DOMAIN
+from core.clients import NotificationsClient
 from .serializers import ReferralSerializer
 from .models import Referral
-from rest_framework.views import APIView
 from core.paginations import CustomCursorPaginationAPU
-from .emails import ReferralEmail
 from core.helpers import ResponseHelper
 from users.models import User
 add_error_code = ResponseHelper.add_error_code
@@ -15,17 +17,34 @@ class ReferralsViewSet(ModelViewSet):
     serializer_class = ReferralSerializer
     pagination_class = CustomCursorPaginationAPU
     queryset = Referral.objects.all()
+    notifications_client = NotificationsClient()
 
-    def create(self, request, user_id, *args, **kwargs):
-        request.user = User.objects.get(pk=user_id)
-        try:
-            ReferralEmail.send(request.user, request.data['email'])
-        except Exception:
-            result = Response({'error': 'invalid data'},
-                              status=status.HTTP_400_BAD_REQUEST)
-            return add_error_code(result, 'referrals.create.emailDidNotSend')
-        else:
-            return super().create(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.parse_error(), status=status.HTTP_400_BAD_REQUEST)
+
+        request.user = User.objects.get(pk=kwargs.get('user_id'))
+        email = request.data.get('email', None)
+        data = self._create_data_for_notification(request.user, email)
+        send_email_response = self.notifications_client.send_referral_email(data)
+
+        if send_email_response.status_code != status.HTTP_200_OK:
+            response = Response({'error': 'Email not sent'}, status=status.HTTP_400_BAD_REQUEST)
+            return add_error_code(response, 'referrals.create.emailDidNotSend')
+
+        return super().create(request, *args, **kwargs)
+
+    @staticmethod
+    def _create_data_for_notification(user: User, referral_email: str):
+        print(user.referral_id)
+        return {
+            'referral_email': referral_email,
+            'encode_email': force_str(urlsafe_base64_encode(force_bytes(referral_email))),
+            'user_email': user.email,
+            'referral_code': user.referral_id,
+            'domain': PWA_DOMAIN
+        }
 
     def retrieve(self, request, user_id):
         request.user = User.objects.get(pk=user_id)
