@@ -407,8 +407,11 @@ class ResetPasswordEmailTestCase(TestCase):
 
     def test_get_validation_message_ok(self):
         message = ResetPasswordEmail.get_validation_message(self.user)
-        self.assertIs(type(message), SafeText)
-        self.assertGreater(len(message), 0)
+        self.assertIs(type(message), dict)
+        self.assertTrue('uid' in message)
+        self.assertTrue('email' in message)
+        self.assertTrue('token' in message)
+        self.assertTrue('domain' in message)
 
     def test_get_validation_message_error(self):
         with self.assertRaises(AttributeError):
@@ -438,7 +441,7 @@ class SendResetPasswordEmailAPIViewTestCase(TestCase):
 
     def test_send_reset_password_email_invalid_email(self):
         payload = json.dumps({
-            'eamil': 'xxxxx'
+            'email': 'xxxxx'
         })
         response = self.client.post(
             reverse('users:send-reset-password-email'),
@@ -451,7 +454,7 @@ class SendResetPasswordEmailAPIViewTestCase(TestCase):
 
     def test_send_reset_password_not_register_email(self):
         payload = json.dumps({
-            'eamil': 'a___@___a.com'
+            'email': 'a___@___a.com'
         })
         response = self.client.post(
             reverse('users:send-reset-password-email'),

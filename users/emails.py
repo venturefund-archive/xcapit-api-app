@@ -26,23 +26,17 @@ class EmailValidation:
 
 
 class ResetPasswordEmail:
+    notifications_client = NotificationsClient()
 
-    @staticmethod
-    def send(user):
-        message = ResetPasswordEmail.get_validation_message(user)
-        send_mail(
-            RESET_PASSWORD_EMAIL_SUBJECT,
-            message,
-            RESET_PASSWORD_EMAIL_FROM,
-            [user.email],
-            fail_silently=False,
-        )
+    def send(self, user):
+        data = self.get_validation_message(user)
+        return self.notifications_client.send_email_reset_password(data)
 
     @staticmethod
     def get_validation_message(user):
-        return render_to_string('reset_password_email.html', {
+        return {
             'email': user.email,
             'uid': force_str(urlsafe_base64_encode(force_bytes(user.pk))),
             'token': email_validation_token.make_token(user),
             'domain': PWA_DOMAIN
-        })
+        }

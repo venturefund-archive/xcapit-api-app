@@ -139,7 +139,13 @@ class SendResetPasswordEmailAPIView(APIView):
         except(TypeError, ValueError, User.DoesNotExist):
             user = None
         if user is not None:
-            ResetPasswordEmail.send(user)
+            reset_email = ResetPasswordEmail()
+            response = reset_email.send(user)
+
+            if response.status_code != status.HTTP_200_OK:
+                response = Response({'error': 'Email not sent'}, status=status.HTTP_400_BAD_REQUEST)
+                return add_error_code(response, 'referrals.create.emailDidNotSend')
+
             return Response({}, status.HTTP_200_OK)
         else:
             response = Response({}, status.HTTP_400_BAD_REQUEST)

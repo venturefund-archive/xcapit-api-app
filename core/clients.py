@@ -16,3 +16,7 @@ class NotificationsClient:
         endpoint = self._generate_endpoint('notifications/send-referral-email/')
         return requests.post(endpoint, json=data)
 
+    def send_email_reset_password(self, data):
+        endpoint = self._generate_endpoint('notifications/send-email-reset-password/')
+        return requests.post(endpoint, json=data)
+
