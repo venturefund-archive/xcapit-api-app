@@ -1,0 +1,223 @@
+---
+stages:
+  - syntax
+  - test
+  - build
+  - deploy
+  - post-test
+
+image: docker:19.03.1
+
+
+cache:
+  untracked: true
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - ~/.cache/pip/
+
+services:
+  - docker:19.03.1-dind
+    
+variables:
+  CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  SRC_DIR: "."  # Indicar aqui donde esta el src code, puede ser indicado en las vars de gitlab
+
+###########################################################################
+###########################################################################
+### Core Workflow
+# # * si el commit msg comienza con [skip tests] salta los tests
+# # * si el commit msg comienza con [skip smoke-test] salta el smoke-test
+workflow:
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /^\[skip tests\]/ 
+      when: never
+    - if: $CI_COMMIT_MESSAGE =~ /^\[skip smoke-test\]/
+      when: never
+    - when: always
+
+###########################################################################
+###########################################################################
+### Templates
+
+### Syntax check
+.syntax-check: &syntax-check
+  stage: syntax
+  tags:
+    - coreinfra
+  image: python:3.8
+  cache:
+    untracked: true
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - ~/.cache/pip/
+  before_script:
+    - cd ${SRC_DIR}
+    - python -V
+    - pip install -r requirements.txt
+  script:
+    - python -m py_compile *.py
+  allow_failure: true
+
+### Build
+.build-branch: &build-branch
+  stage: build
+  tags:
+    - coreinfra
+  before_script:
+    - cd ${SRC_DIR}
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build --tag $CONTAINER_IMAGE:$CI_COMMIT_REF_NAME .
+    - docker push $CONTAINER_IMAGE:$CI_COMMIT_REF_NAME
+
+### Django pytest
+.django-pytest: &django-pytest
+  stage: test
+  image: python:3.8
+  services:
+    - name: postgres:12.0
+      alias: postgres-api-app
+  cache:
+    untracked: true
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - ~/.cache/pip/
+  tags:
+    - coreinfra
+  variables:
+    DEBUG: "1"
+    SECRET: "e6c8dc8402dc3a1b3ca85304d88622835a80c75dc60cf4a88e5181c556d810f0"
+    POSTGRES_USER: "postgres"
+    POSTGRES_DB: "api_app_db"
+    POSTGRES_PASSWORD: "xcap123"
+    POSTGRES_HOST: "postgres-api-app"
+    POSTGRES_PORT: "5432"
+    DJANGO_LOG_LEVEL: "INFO"
+    DATA_SOURCE_URI: "postgres-api-app:5432/api_app_db?sslmode=disable"
+    DATA_SOURCE_USER: "postgres"
+    DATA_SOURCE_PASS: "xcap123"
+    PG_EXPORTER_AUTO_DISCOVER_DATABASES: "true"
+    API_NOTIFICATIONS: "http://wrapperbotadmin:9051/v1/api/"
+    PWA_DOMAIN: "https://preprod.xcapit.com"
+
+  before_script:
+    - cd ${SRC_DIR}
+    - python -V
+    - pip install -r requirements.txt
+  script:
+    - coverage run -m pytest
+    - coverage report -m
+
+### Django smoke test
+.django-smoke-test: &django-smoke-test
+  stage: post-test
+  image: $CONTAINER_IMAGE:$CI_COMMIT_REF_NAME
+  services:
+    - name: postgres:12.0
+      alias: postgres-api-app
+  tags:
+    - coreinfra
+  variables:
+    DEBUG: "1"
+    SECRET: "e6c8dc8402dc3a1b3ca85304d88622835a80c75dc60cf4a88e5181c556d810f0"
+    POSTGRES_USER: "postgres"
+    POSTGRES_DB: "api_app_db"
+    POSTGRES_PASSWORD: "xcap123"
+    POSTGRES_HOST: "postgres-api-app"
+    POSTGRES_PORT: "5432"
+    DJANGO_LOG_LEVEL: "INFO"
+    DATA_SOURCE_URI: "postgres-api-app:5432/api_app_db?sslmode=disable"
+    DATA_SOURCE_USER: "postgres"
+    DATA_SOURCE_PASS: "xcap123"
+    PG_EXPORTER_AUTO_DISCOVER_DATABASES: "true"
+    API_NOTIFICATIONS: "http://wrapperbotadmin:9051/v1/api/"
+    PWA_DOMAIN: "https://preprod.xcapit.com"
+
+  script:
+    - python ${SRC_DIR}/manage.py test
+
+
+###########################################################################
+###########################################################################
+### Stages
+
+### Syntax check
+Syntax checking:
+  <<: *syntax-check
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_TAG
+
+### pytest
+Django pytest:
+  <<: *django-pytest
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_TAG
+    - when: never
+
+Django pytest manual:
+  <<: *django-pytest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - when: never
+
+Django pytest push:
+  <<: *django-pytest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - when: never
+    
+### Build
+Build from Tag:
+  stage: build
+  tags:
+    - coreinfra
+    
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build --tag $CONTAINER_IMAGE:$CI_COMMIT_TAG .
+    - docker push $CONTAINER_IMAGE:$CI_COMMIT_TAG
+  only:
+    - tags
+
+Build:
+  <<: *build-branch
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+
+Build Manual:
+  <<: *build-branch
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - when: never
+
+Build Manual MR:
+  <<: *build-branch
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: never
+
+### Smoke test sobre la imagen recien creada
+Smoke test:
+  <<: *django-smoke-test
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /^\[build\]/
+    - when: never
+
+Smoke test manual:
+  <<: *django-smoke-test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - when: never
+    
