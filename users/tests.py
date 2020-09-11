@@ -428,7 +428,10 @@ class SendResetPasswordEmailAPIViewTestCase(TestCase):
         user = User(**self.userData)
         user.save()
 
-    def test_send_reset_password_email_valid(self):
+    @patch('requests.post')
+    def test_send_reset_password_email_valid(self, mock_post):
+        mock_post.return_value.json.return_value = {}
+        mock_post.return_value.status_code = status.HTTP_200_OK
         payload = json.dumps({
             'email': self.userData.get('email')
         })
