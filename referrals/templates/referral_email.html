@@ -1,0 +1,7 @@
+{% autoescape off %}
+Hola {{ email }}, fuiste referido por {{ user_email }}
+
+Click para registrarte:
+
+{{ domain }}/users/register/{{ referral_code }}/{{ encode_email }}
+{% endautoescape %}

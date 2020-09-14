@@ -1,0 +1,1039 @@
+openapi: "3.0.1"
+
+info:
+  description: "API que almacena informacion para App Advisor."
+  version: "v1"
+  title: "XCAPIT API APP"
+
+servers:
+  - url: "http://localhost:9060/v1/api"
+
+tags:
+  - name: "users"
+    description: "Registro, Login y operaciones sobre el usuario"
+  - name: "profiles"
+    description: "Actualización y recuperación del Perfil del Usuario"
+  - name: "stats"
+    description: "Endpoints para obtener información estadística de la app y los fondos"
+  - name: "terms_and_conditions"
+    description: "Endpoints para aceptar los términos y condiciones"
+  - name: "referrals"
+    description: "Endpoints relacionados a las operaciones con referidos"
+
+paths:
+  /users/:
+    post:
+      tags:
+        - "users"
+      summary: "Registra un nuevo usuario"
+      requestBody:
+        description: "Usuario a registrar"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        201:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: ['users.registration.invalidData', 
+                           'users.registration.referralIdNotExists']
+  /users/email_validation:
+    post:
+      tags:
+        - "users"
+      summary: "Valida el token enviado al email del usuario"
+      requestBody:
+        description: "Objeto que contiene el token"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: "string"
+                uidb64:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  isValid:
+                    type: "boolean"
+                    enum: [true]
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  isValid:
+                    type: "boolean"
+                    enum: [false]
+                  error_code:
+                    type: "string"
+                    enum: ['users.emailValidation.invalid']
+  /users/login:
+    post:
+      tags:
+        - "users"
+      summary: "Validación de username (email) y pass para login"
+      requestBody:
+        description: "Objeto que contiene el token"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: "string"
+                password:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  access:
+                    type: "string"
+                  refresh:
+                    type: "string"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    properties:
+                      message:
+                        type: "string"
+                      code:
+                        type: "string"
+                  error_code:
+                    type: "string"
+                    enum: [users.login.invalidCredentials]
+  /users/send_email_validation:
+    post:
+      tags:
+        - "users"
+      summary: "Envía el email de validación"
+      description: "Se usa en caso de que falle el envío cuando se registra el usuario"
+      requestBody:
+        description: "El id del usuario en base64"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                uidb64:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [users.sendEmailValidationToken.user]
+  /users/send_reset_password_email:
+    post:
+      tags:
+        - "users"
+      summary: "Envía el email para el reset de la password de usuario"
+      requestBody:
+        description: "El email/nombre de usuario del cliente"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [users.sendResetPasswordEmail.user]
+  /users/reset_password:
+    post:
+      tags:
+        - "users"
+      summary: "Resetea la password del usuario"
+      requestBody:
+        description: "Objeto que contiene el token y uidb64 del usuario para validación y la nueva password junto con su confirmación"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: "string"
+                uidb64:
+                  type: "string"
+                password:
+                  type: "string"
+                repeat_password:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: ['users.resetPassword.invalid']
+  /users/change_password/{pk}:
+    post:
+      tags:
+        - "users"
+      summary: "cambia la password del usuario"
+      parameters:
+        - in: path
+          name: pk
+          description: id del usuario a cambiar la password
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Objeto que contiene la password actual, la nueva password y su confirmación"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                actual_password:
+                  type: "string"
+                password:
+                  type: "string"
+                repeat_password:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: ['users.changePassword.invalid']
+  /users/is_superuser:
+    get:
+      tags:
+        - "users"
+      summary: "Retorna si el usuario que hizo la consulta es superusuario"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            text/plain:
+              schema:
+                type: "boolean"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: "object"
+      security:
+        - jwtAuth: []
+  /users/{pk}:
+    get:
+      tags:
+        - "users"
+      parameters:
+        - in: path
+          name: pk
+          description: id de los terminos y condiciones a actualizar
+          required: true
+          schema:
+            type: "string"
+      summary: "Retorna el usuario de id recibido, con su perfil"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAndProfile"
+  /users/by_email/{email}:
+    get:
+        tags:
+          - 'users'
+        summary: 'Retorna el usuario con el email recibido'
+        parameters:
+          - in: 'path'
+            name: 'email'
+            description: 'Email del usuario a filtrar'
+            required: true
+            schema:
+              type: 'string'
+              format: 'email'
+        responses:
+          200:
+            description: 'Ok'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UserGet"
+          404:
+            description: 'No existe un usuario con el email recibido'
+            content:
+              application/json:
+                schema:
+                  type: 'object'
+
+  /profiles/user/{user_id}:
+    get:
+      tags:
+        - "profiles"
+      summary: "Retorna el perfil del usuario del id recibido"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"      
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.retrieve.doesNotExists]
+    put:
+      tags:
+        - "profiles"
+      summary: "Actualiza el perfil del usuario del id recibido"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Perfil"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.update.invalidData, profiles.update.doesNotExists]
+  /profiles/user/{user_id}/valid:
+    get:
+      tags:
+        - "profiles"
+      summary: "Retorna si el perfil del usuario del id recibido es valido"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"      
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  valid: 
+                    type: "boolean"
+        204:
+          description: "No content"
+    
+
+  /stats/users/count:
+    get:
+      summary: Retorna el número de usuarios registrados total, activos e inactivos
+      description: Recibe como query param opcional el year, si es así el resultado se agrupa por mes
+      tags:
+        - "stats"
+      parameters:
+        - in: query
+          name: year
+          description: year para agrupar el número de usuarios por mes
+          required: false
+          schema:
+            type: "string"
+        - in: query
+          name: month
+          description: numero de mes para filtrar el número de usuarios de ese mes
+          required: false
+          schema:
+            type: "string"
+
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/UserCount"
+                  - $ref: "#/components/schemas/UserCountYear"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+  /stats/use/fund_summary_views:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que vieron el resumen de sus fondos."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "integer"
+                example: 10
+  /stats/use/fund_balance_views:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que vieron el balance de sus fondos."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "integer"
+                example: 10
+  /stats/use/login_count:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que loguearon exitosamente y fallaron al intentar loguear."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "integer"
+                    example: 10
+                  failed:
+                    type: "integer"
+                    example: 4
+  /stats/use/open_count:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que abrieron la app estando logueados."
+      description: "Si se le envia el user_id filtra por ese usuario particular"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "integer"
+                example: 100
+  /stats/use/fund_actions_count:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna la cantidad de veces que se hicieron acciones sobre el fondo."
+      description: "Si se le envia el user_id filtra por ese usuario particular. Las acciones son 'Pause Fund', 'Resume Fund', 'Finalize Fund', 'Renew Fund'"
+      parameters:
+        - in: query
+          name: user_id
+          required: false
+          schema:
+            type: "string"
+          description: Id del usuario a consultar
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Actions"
+  /stats/logs:
+    get:
+      tags:
+        - "stats"
+      summary: "Retorna los logs."
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Log"
+    post:
+      tags:
+        - "stats"
+      summary: "Registra un nuevo log de un usuario logueado"
+      description: "El server ingresa id del user, la ip y agent"
+      operationId: ""
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogCreate"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Log"
+  /stats/public_logs:
+    post:
+      tags:
+        - "stats"
+      summary: "Registra un nuevo log del usuario no logueado."
+      description: "El server ingresa id -1, la ip y agent."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogCreate"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Log"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+
+  /terms_and_conditions/user/{user_id}:
+    get:
+      tags:
+        - "terms_and_conditions"
+      summary: "Retorna si el usuario acepto los términos y condiciones"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario a consultar los terminos y condiciones
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TermsAndConditions"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [terms_and_conditions.retrieve.doesNotExists]
+    post:
+      tags:
+        - "terms_and_conditions"
+      summary: "Guarda la aceptación del usuario de los términos y condiciones"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario que acepta lo terminos y condiciones
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Accept terms & conditions"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TermsAndConditionsPost"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TermsAndConditions"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [terms_and_conditinos.post.invalidData]
+  /terms_and_conditions/{pk}:
+    put:
+      tags:
+        - "terms_and_conditions"
+      summary: "Actualiza la aceptación del usuario de los términos y condiciones"
+      parameters:
+        - in: path
+          name: pk
+          description: id de los terminos y condiciones a actualizar
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Accept terms & conditions"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TermsAndConditions"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TermsAndConditions"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [terms_and_conditipns.update.invalidData, terms_and_conditinos.update.doesNotExists]
+
+  /referrals/user/{user_id}:
+    post:
+      tags:
+        - "referrals"
+      summary: "Guarda el referral"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario con el cual se crea el referido
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "email"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                  email:
+                    type: "string"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Referral"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [referrals.create.emailDidNotSend,
+                           referrals.create.referralAlreadyExist,
+                           referrals.create.referralAlreadyExistsAsUser
+                    ]
+    get:
+      tags:
+        - "referrals"
+      summary: "Retorna los referrals de un usuario paginados y ordenados"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario a consultar los referido
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedReferral"
+
+components:
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+        repeat_email:
+          type: "string"
+        password:
+          type: "string"
+        repeat_password:
+          type: "string"
+        referral_code:
+          type: "string"
+    UserGet:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        email:
+          type: "string"
+          format: "email"
+        is_active:
+          type: "boolean"
+        created_at:
+          type: "string"
+        updated_at:
+          type: "string"
+        is_superuser:
+          type: "boolean"
+        is_staff:
+          type: "boolean"
+
+    Profile:
+      type: "object"
+      properties:
+        first_name:
+          type: "string"
+        last_name:
+          type: "string"
+        nro_dni:
+          type: "string"
+        cellphone:
+          type: "string"
+        condicion_iva:
+          type: "string"
+        tipo_factura:
+          type: "string"
+        cuit:
+          type: "string"
+        direccion:
+          type: "string"
+        pais:
+          type: "string"
+    UserAndProfile:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        email:
+          type: "string"
+        is_active:
+          type: "boolean"
+        created_at:
+          type: "string"
+        updated_at:
+          type: "string"
+        referral_id:
+          type: "string"
+        profile:
+          type: "object"
+          properties:
+            first_name:
+              type: "string"
+            last_name:
+              type: "string"
+            nro_dni:
+              type: "string"
+            cellphone:
+              type: "string"
+            condicion_iva:
+              type: "string"
+            tipo_factura:
+              type: "string"
+            cuit:
+              type: "string"
+            direccion:
+              type: "string"
+    Log:
+      type: "object"
+      properties:
+        created_at:
+          type: "string"
+          format: "date-time"
+        description:
+          type: "string"
+        button_id:
+          type: "string"
+        component_id:
+          type: "string"
+        agent:
+          type: "string"
+        event_id:
+          type: "string"
+        fired_at:
+          type: "string"
+          format: "date-time"
+        user_id:
+          type: "number"
+        ip:
+          type: "string"
+          oneOf:
+            - format: "ipv4"
+            - format: "ipv6"
+    LogCreate:
+      type: "object"
+      properties:
+        description:
+          type: "string"
+        button_id:
+          type: "string"
+        component_id:
+          type: "string"
+        event_id:
+          type: "string"
+        fired_at:
+          type: "string"
+          format: "date-time"
+    UserCount:
+      type: "object"
+      properties:
+        users:
+          type: "number"
+        active:
+          type: "number"
+        inactive:
+          type: "number"
+    UserCountYear:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          users:
+            type: "number"
+          active:
+            type: "number"
+          inactive:
+            type: "number"
+          month:
+            type: "number"
+    Actions:
+      type: "object"
+      properties:
+        pause_fund:
+          type: "number"
+        resume_fund:
+          type: "number"
+        finalize_fund:
+          type: "number"
+        renew_fund:
+          type: "number"
+    TermsAndConditionsPost:
+      type: "object"
+      properties:
+        accepted:
+          type: "boolean"
+    TermsAndConditions:
+      type: "object"
+      properties:
+        id:
+          type: "number"
+        user_id:
+          type: "number"
+        accepted:
+          type: "boolean"
+        created_at:
+          type: "string"
+          format: "date-time"
+        accepted_at:
+          type: "string"
+          format: "date-time"
+    Referral:
+      type: "object"
+      properties:
+        id:
+          type: "number"
+        user_id:
+          type: "number"
+        accepted:
+          type: "boolean"
+        created_at:
+          type: "string"
+          format: "date-time"
+        accepted_at:
+          type: "string"
+          format: "date-time"
+        email:
+          type: "string"
+          format: "email"
+    PaginatedReferral:
+      type: "object"
+      allOf:
+        - $ref: "#/components/schemas/Pagination"
+        - properties:
+            results:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/Referral"
+    Pagination:
+      type: "object"
+      properties:
+        cursors:
+          type: "object"
+          properties:
+            next:
+              type: "string"
+            previous:
+              type: "string"
+        links:
+          type: "object"
+          properties:
+            next:
+              type: "string"
+            previous:
+              type: "string"
