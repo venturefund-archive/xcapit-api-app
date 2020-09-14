@@ -1,8 +1,11 @@
+from unittest.mock import patch, Mock
+
 from django.test import TestCase, tag
 from users.test_utils import get_credentials, create_user
 from django.urls import reverse
 from rest_framework import status
 from .models import Referral
+
 
 test_data = {
     "referral_email1": 'referr@ls1.com',
@@ -57,7 +60,12 @@ class ReferralsViewSetTestCase(TestCase):
         objs = [Referral(**referral) for referral in test_referals]
         Referral.objects.bulk_create(objs)
 
-    def test_post_referrals(self):
+    @patch('requests.post')
+    def test_post_referrals(self, mock_post):
+        mock_post_response = Mock()
+        mock_post_response.json.return_value = {'sent': True}
+        mock_post_response.status_code = status.HTTP_200_OK
+        mock_post.return_value = mock_post_response
         response = self.client.post(
             reverse('referrals:referrals',
                     kwargs={'user_id': self.user.id}),
@@ -65,7 +73,12 @@ class ReferralsViewSetTestCase(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_post_other_referrals(self):
+    @patch('requests.post')
+    def test_post_other_referrals(self, mock_post):
+        mock_post_response = Mock()
+        mock_post_response.json.return_value = {'sent': True}
+        mock_post_response.status_code = status.HTTP_200_OK
+        mock_post.return_value = mock_post_response
         response1 = self.client.post(
             reverse('referrals:referrals',
                     kwargs={'user_id': self.user.id}),
@@ -79,7 +92,12 @@ class ReferralsViewSetTestCase(TestCase):
         self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
 
-    def test_post_referrals_already_exists(self):
+    @patch('requests.post')
+    def test_post_referrals_already_exists(self, mock_post):
+        mock_post_response = Mock()
+        mock_post_response.json.return_value = {'sent': True}
+        mock_post_response.status_code = status.HTTP_200_OK
+        mock_post.return_value = mock_post_response
         response1 = self.client.post(
             reverse('referrals:referrals',
                     kwargs={'user_id': self.user.id}),
