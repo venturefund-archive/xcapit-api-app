@@ -408,18 +408,97 @@ paths:
                   error_code:
                     type: "string"
                     enum: [profiles.update.invalidData, profiles.update.doesNotExists]
-  /profiles/user/{user_id}/valid:
-    get:
+  /profiles/user/{user_id}/personal_data:
+    put:
       tags:
         - "profiles"
-      summary: "Retorna si el perfil del usuario del id recibido es valido"
+      summary: "Actualiza los datos personales del perfil de usuario"
       parameters:
         - in: path
           name: user_id
           description: id del usuario
           required: true
           schema:
-            type: "string"      
+            type: "string"
+      requestBody:
+        description: "Datos personales"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersonalData"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.update.invalidData, profiles.update.doesNotExists]
+  /profiles/user/{user_id}/bill_data:
+    put:
+      tags:
+        - "profiles"
+      summary: "Actualiza los datos de facturacion del perfil de usuario"
+      parameters:
+        - in: path
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        description: "Datos de facturacion"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillData"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [profiles.update.invalidData, profiles.update.doesNotExists]
+  /profiles/user/{user_id}/valid:
+    get:
+      tags:
+        - "profiles"
+      summary: "Retorna si el perfil del usuario del id recibido es valido segun el tipo de validacion"
+      parameters:
+        - in: query
+          name: user_id
+          description: 'Tipo de validacion'
+          required: false
+          schema:
+            type: "string"
+            enum: ['personal_data', 'bill_data']
+        - in: path
+          name: user_id
+          description: id del usuario
+          required: true
+          schema:
+            type: "string"
       responses:
         200:
           description: "Ok"
@@ -844,7 +923,30 @@ components:
           type: "boolean"
         is_staff:
           type: "boolean"
-
+    PersonalData:
+      type: "object"
+      properties:
+        first_name:
+          type: "string"
+        last_name:
+          type: "string"
+        nro_dni:
+          type: "string"
+        cellphone:
+          type: "string"
+    BillData:
+      type: "object"
+      properties:
+        condicion_iva:
+          type: "string"
+        tipo_factura:
+          type: "string"
+        cuit:
+          type: "string"
+        direccion:
+          type: "string"
+        pais:
+          type: "string"
     Profile:
       type: "object"
       properties:
