@@ -19,6 +19,8 @@ from rest_framework.permissions import IsAuthenticated
 from users.serializer import UserSerializer
 from profiles.models import Profile
 from profiles.serializers import ProfileSerializer
+from referrals.services import validate_referral
+from referrals.models import Referral
 add_error_code = ResponseHelper.add_error_code
 
 
@@ -86,6 +88,10 @@ class EmailValidationTokenAPIView(APIView):
                 user, request.data.get('token', '')):
             user.is_active = True
             user.save()
+            referral_queryset = Referral.objects.filter(email=user.email)
+            if referral_queryset.exists():
+                referral = referral_queryset.first()
+                validate_referral(referral.referral_id, referral.email)
             return Response({'isValid': True}, status.HTTP_200_OK)
         else:
             response = Response({'isValid': False},

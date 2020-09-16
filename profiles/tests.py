@@ -1,424 +1,244 @@
-import json
-from django.test import TestCase
+import pytest
 from django.urls import reverse
 from rest_framework import status
-
 from .models import Profile
 from .serializers import ProfileSerializer
-from users.test_utils import get_credentials
-from users.models import User
+from users.test_utils import create_user
 
-personal_data = {
-    'nro_dni': '',
-    'cellphone': '',
-    'first_name': '',
-    'last_name': '',
-    'direccion': '',
-}
-
-fiscal_data = {
-    'condicion_iva': '',
-    'tipo_factura': '',
-    'cuit': '',
-    'pais': ''
-}
-
-profile_test_data = {
-    'first_name': '',
-    'last_name': '',
-    'nro_dni': '',
-    'cellphone': '',
-    'condicion_iva': '',
-    'tipo_factura': '',
-    'cuit': '',
-    'direccion': '',
-    'pais': ''
-}
-
-user_test_data = {
-    'email': 'test@test.com',
-    'password': 'asdfF3'
-}
+personal_data_keys = ['first_name', 'last_name', 'nro_dni', 'cellphone']
+bill_data_keys = ['condicion_iva', 'tipo_factura', 'cuit', 'direccion', 'pais']
+profile_keys = personal_data_keys + bill_data_keys
 
 
-class ProfileTestCase(TestCase):
-
-    def setUp(self):
-        self.user = User(email=user_test_data.get('email'), is_active=True)
-        self.user.set_password(user_test_data.get('password'))
-        self.user.save()
-        self.profile = Profile.objects.get(user=self.user)
-
-    def test_string_representation(self):
-        self.assertEqual(str(self.profile), user_test_data.get('email'))
+@pytest.fixture
+def personal_data():
+    return {
+        'first_name': 'TestName',
+        'last_name': 'TestLastName',
+        'nro_dni': '99999292',
+        'cellphone': '3234434556'
+    }
 
 
-class ProfileRetrieveUpdateAPIViewTestCase(TestCase):
-    def setUp(self):
-        self.credentials = get_credentials(
-            self.client,
-            email="test13@test.com",
-            password="test1T"
-        )
-        self.user = User.objects.get(email='test13@test.com')
-
-    def test_retrieve_call(self):
-        response = self.client.get(
-            reverse('profiles:retrieve-update-user-profile',
-                    kwargs={'user_id': self.user.id}),
-            content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_retrieve_call_invalid(self):
-        """ Profile does not exists """
-        self.user.profile.delete()
-        self.user.save()
-        response = self.client.get(
-            reverse('profiles:retrieve-update-user-profile',
-                    kwargs={'user_id': self.user.id}),
-            content_type='application/json',
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'],
-                         'profiles.retrieve.doesNotExists')
-
-    def test_update_call(self):
-        payload = json.dumps(profile_test_data)
-        response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile',
-                    kwargs={'user_id': self.user.id}),
-            data=payload,
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_update_call_invalid_1(self):
-        """ Profile does not exists """
-        self.user.profile.delete()
-        self.user.save()
-        payload = json.dumps(profile_test_data)
-        response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile',
-                    kwargs={'user_id': self.user.id}),
-            data=payload,
-            content_type='application/json',
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'],
-                         'profiles.update.doesNotExists')
-
-    def test_update_personal_data(self):
-        """ Invalid data """
-        payload = json.dumps(personal_data)
-        response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile',
-                    kwargs={'user_id': self.user.id}),
-            data=payload,
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_update_fiscal_data(self):
-        """ Invalid data """
-        payload = json.dumps(fiscal_data)
-        response = self.client.put(
-            reverse('profiles:retrieve-update-user-profile',
-                    kwargs={'user_id': self.user.id}),
-            data=payload,
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+@pytest.fixture
+def bill_data():
+    return {
+        'condicion_iva': 'Responsable Monotributo',
+        'tipo_factura': 'C',
+        'cuit': '39384838494',
+        'direccion': 'Calle falsa 123',
+        'pais': 'Argentina'
+    }
 
 
-class ProfileSerializerTestCase(TestCase):
-
-    def setUp(self):
-        self.profile_attributes = profile_test_data
-        self.serializer_data = profile_test_data
-        self.serializer_data['email'] = user_test_data.get('email')
-        self.user = User.objects.create(**user_test_data)
-        self.profile = Profile.objects.get(user=self.user)
-        self.serializer = ProfileSerializer(instance=self.profile)
-
-    def test_containt_expected_fields(self):
-        data = self.serializer.data
-        self.assertCountEqual(data.keys(),
-                              ['email', 'first_name', 'last_name',
-                               'nro_dni', 'cellphone', 'condicion_iva',
-                               'tipo_factura', 'cuit', 'direccion', 'pais'])
-
-    def test_email_field_content(self):
-        data = self.serializer.data
-        self.assertEqual(data['email'], self.user.email)
-
-    def test_valid_data_serializer(self):
-        serializer = ProfileSerializer(data=profile_test_data)
-        self.assertTrue(serializer.is_valid())
-
-    def test_valid_personal_data_serializer(self):
-        serializer = ProfileSerializer(data=personal_data)
-        self.assertTrue(serializer.is_valid())
-
-    def test_valid_fiscal_data_serializer(self):
-        serializer = ProfileSerializer(data=fiscal_data)
-        self.assertTrue(serializer.is_valid())
-
-    def test_valid_name_keys_data_serializer(self):
-        serializer = ProfileSerializer(
-            data=personal_data)
-        self.assertTrue(serializer.is_valid())
-
-    def test_invalid_data_serializer(self):
-        serializer = ProfileSerializer(data={'asdas': 'asdas'})
-        self.assertFalse(serializer.is_valid())
-
-    def test_personal_invalid_data_serializer(self):
-        personal_data_invalid = personal_data.copy()
-        personal_data_invalid.pop('cellphone')
-        serializer = ProfileSerializer(data=personal_data_invalid)
-        self.assertFalse(serializer.is_valid())
-
-    def test_fiscal_invalid_data_serializer(self):
-        fiscal_data_invalid = fiscal_data.copy()
-        fiscal_data_invalid.pop('cuit')
-        serializer = ProfileSerializer(data=fiscal_data_invalid)
-        self.assertFalse(serializer.is_valid())
-
-    def test_invalid_name_keys_data_serializer(self):
-        serializer = ProfileSerializer(
-            data={'last_name': 'Test'})
-        self.assertFalse(serializer.is_valid())
+@pytest.fixture
+def profile_data(personal_data, bill_data):
+    return {**personal_data, **bill_data}
 
 
-class ProfileValidAPIViewTestCase(TestCase):
-    def setUp(self):
-        self.invalid_profile = profile_test_data.copy()
-        if 'email' in self.invalid_profile:
-            self.invalid_profile.pop('email')
-        self.valid_profile = {
-            'first_name': 'Test First',
-            'last_name': 'Test Last',
-            'nro_dni': '321332155',
-            'cellphone': '2313323213',
-            'condicion_iva': 'Sujeto no Categorizad',
-            'tipo_factura': 'B',
-            'cuit': '23256585849',
-            'direccion': 'Test address',
-            'pais': 'Argentina'
-        }
-        self.user = User(email=user_test_data.get(
-            'email'), is_active=True)
-        self.user.set_password(user_test_data.get('password'))
-        self.user.save()
-
-    def test_valid(self):
-        """ All valid """
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **self.valid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], True)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_all(self):
-        """ All invalid """
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **self.invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_first_name(self):
-        """ First name invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['first_name'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_last_name(self):
-        """ Last name invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['last_name'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_nro_dni(self):
-        """ nro_dni invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['nro_dni'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_nro_dni(self):
-        """ nro_dni invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['nro_dni'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_cellphone(self):
-        """ cellphone invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['cellphone'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_condicion_iva(self):
-        """ condicion_iva invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['condicion_iva'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_tipo_factura(self):
-        """ tipo_factura invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['tipo_factura'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_cuit(self):
-        """ cuit invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['cuit'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_direccion(self):
-        """ direccion invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['direccion'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_invalid_pais(self):
-        """ pais invalid """
-        invalid_profile = self.invalid_profile.copy()
-        invalid_profile['pais'] = ''
-        Profile.objects.filter(pk=self.user.profile.id).update(
-            **invalid_profile
-        )
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': self.user.id
-                    }
-                    )
-        )
-        self.assertEqual(response.json()['valid'], False)
-        self.assertEqual(response.status_code, 200)
+def is_personal_data_key(key):
+    return key in personal_data_keys
 
 
-    def test_not_exists(self):
-        """ No existe el user """
-        response = self.client.get(
-            reverse('profiles:valid',
-                    kwargs={
-                        'user_id': 600
-                    }
-                    )
-        )
-        self.assertEqual(response.status_code, 204)
+def is_bill_data_key(key):
+    return key in bill_data_keys
+
+
+@pytest.fixture
+def user_data():
+    return {
+        'email': 'test@test.com',
+        'password': 'asdfF3',
+        'is_superuser': False
+    }
+
+
+@pytest.fixture
+def profile_serializer(user_data):
+    user = create_user(**user_data)
+    profile = Profile.objects.get(user=user)
+    return ProfileSerializer(instance=profile)
+
+
+@pytest.mark.django_db
+def test_profile_model_string_representation(user_data):
+    user = create_user(**user_data)
+    profile = Profile.objects.get(user=user)
+    assert str(profile) == user_data.get('email')
+
+
+@pytest.mark.django_db
+def test_profile_serializer_contain_expected_fields(profile_serializer):
+    data = profile_serializer.data
+    # Add email because it is not used for profile valid, so not in profile_keys
+    assert len(data.keys()) == len(profile_keys + ['email'])
+
+
+@pytest.mark.django_db
+def test_profile_serializer_email_field_content(profile_serializer, user_data):
+    data = profile_serializer.data
+    assert data.get('email') == user_data.get('email')
+
+
+def test_profile_serializer_valid(profile_data):
+    serializer = ProfileSerializer(data=profile_data)
+    assert serializer.is_valid(raise_exception=False) is True
+
+
+def test_profile_serializer_invalid():
+    serializer = ProfileSerializer(data={'asdas': 'asdas'})
+    assert serializer.is_valid(raise_exception=False) is False
+
+
+@pytest.mark.django_db
+def test_personal_data_api_view(client, personal_data):
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:user-profile-personal-data', kwargs={'user_id': user.id})
+    response = client.put(url, data=personal_data, content_type='application/json')
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('field', ['first_name', 'last_name', 'nro_dni', 'cellphone'])
+def test_personal_data_api_view_invalid_data(client, personal_data, field):
+    temp = personal_data.copy()
+    temp.pop(field)
+    invalid_personal_data = temp.copy()
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:user-profile-personal-data', kwargs={'user_id': user.id})
+    response = client.put(url, data=invalid_personal_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert field in response.json()
+    assert response.json()['error_code'] == 'profiles.update.invalidData'
+
+
+@pytest.mark.django_db
+def test_personal_data_api_view_profile_not_exists(client, personal_data):
+    url = reverse('profiles:user-profile-personal-data', kwargs={'user_id': 50})
+    response = client.put(url, data=personal_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['error_code'] == 'profiles.update.doesNotExists'
+
+
+@pytest.mark.django_db
+def test_bill_data_api_view(client, bill_data):
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:user-profile-bill-data', kwargs={'user_id': user.id})
+    response = client.put(url, data=bill_data, content_type='application/json')
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('field', ['condicion_iva', 'tipo_factura', 'cuit', 'direccion', 'pais'])
+def test_bill_data_api_view_invalid_data(client, bill_data, field):
+    temp = bill_data.copy()
+    temp.pop(field)
+    invalid_bill_data = temp.copy()
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:user-profile-bill-data', kwargs={'user_id': user.id})
+    response = client.put(url, data=invalid_bill_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert field in response.json()
+    assert response.json()['error_code'] == 'profiles.update.invalidData'
+
+
+@pytest.mark.django_db
+def test_bill_data_api_view_profile_not_exists(client, bill_data):
+    url = reverse('profiles:user-profile-bill-data', kwargs={'user_id': 50})
+    response = client.put(url, data=bill_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['error_code'] == 'profiles.update.doesNotExists'
+
+
+@pytest.mark.django_db
+def test_put_profile_data_api_view(client, profile_data):
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:retrieve-update-user-profile', kwargs={'user_id': user.id})
+    response = client.put(url, data=profile_data, content_type='application/json')
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('field', profile_keys)
+def test_put_profile_data_api_view_invalid_data(client, profile_data, field):
+    temp = profile_data.copy()
+    temp.pop(field)
+    invalid_profile_data = temp.copy()
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:retrieve-update-user-profile', kwargs={'user_id': user.id})
+    response = client.put(url, data=invalid_profile_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert field in response.json()
+    assert response.json()['error_code'] == 'profiles.update.invalidData'
+
+
+@pytest.mark.django_db
+def test_put_profile_data_api_view_profile_not_exists(client, profile_data):
+    url = reverse('profiles:retrieve-update-user-profile', kwargs={'user_id': 50})
+    response = client.put(url, data=profile_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['error_code'] == 'profiles.update.doesNotExists'
+
+
+@pytest.mark.django_db
+def test_get_profile_data_api_view(client):
+    user = create_user('test@test.com', 'TestPass1234', False)
+    url = reverse('profiles:retrieve-update-user-profile', kwargs={'user_id': user.id})
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_get_profile_data_api_view_profile_not_exists(client, profile_data):
+    url = reverse('profiles:retrieve-update-user-profile', kwargs={'user_id': 50})
+    response = client.put(url, data=profile_data, content_type='application/json')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['error_code'] == 'profiles.update.doesNotExists'
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'key, valid',
+    [(key, not is_personal_data_key(key)) for key in profile_keys]
+)
+def test_profile_valid_validate_personal_data(client, key, valid, profile_data):
+    profile_data_without_key = profile_data.copy()
+    profile_data_without_key[key] = ''
+    user = create_user('test@test.com', 'TestPass1234', False)
+    Profile.objects.filter(user_id=user.id).update(**profile_data_without_key)
+    url = reverse('profiles:valid', kwargs={'user_id': user.id})
+    response = client.get(url, {'validation_type': 'personal_data'}, )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['valid'] == valid
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'key, valid',
+    [(key, not is_bill_data_key(key)) for key in profile_keys]
+)
+def test_profile_valid_validate_bill_data(client, key, valid, profile_data):
+    profile_data_without_key = profile_data.copy()
+    profile_data_without_key[key] = ''
+    user = create_user('test@test.com', 'TestPass1234', False)
+    Profile.objects.filter(user_id=user.id).update(**profile_data_without_key)
+    url = reverse('profiles:valid', kwargs={'user_id': user.id})
+    response = client.get(url, {'validation_type': 'bill_data'})
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['valid'] == valid
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'key, valid',
+    [(key, not is_personal_data_key(key)) for key in profile_keys]
+)
+def test_profile_valid(client, key, valid, profile_data):
+    profile_data_without_key = profile_data.copy()
+    profile_data_without_key[key] = ''
+    user = create_user('test@test.com', 'TestPass1234', False)
+    Profile.objects.filter(user_id=user.id).update(**profile_data_without_key)
+    url = reverse('profiles:valid', kwargs={'user_id': user.id})
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['valid'] == valid
