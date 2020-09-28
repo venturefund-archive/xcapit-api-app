@@ -706,3 +706,39 @@ def test_by_email_api_view(client, email, expected_status_code, expected_body):
     response.json().pop('id', None)
     assert response.status_code == expected_status_code
     assert response.json() == expected_body
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('refresh_token, expected_status, expected_response', [
+    [None, status.HTTP_200_OK, {"access": "", "refresh": ""}],
+    ['test_refresh_invalido', status.HTTP_401_UNAUTHORIZED,
+     {"detail": "Token is invalid or expired", "code": "token_not_valid"}]
+])
+def test_refresh_token(client, refresh_token, expected_status, expected_response):
+    create_user("franco@xcapit.com", "Hola12345", False)
+
+    payload_access = json.dumps({
+        'email': 'franco@xcapit.com',
+        'password': 'Hola12345'
+    })
+
+    credentials = client.post(
+        reverse('users:user-login'), data=payload_access,
+        content_type='application/json').data
+
+    refresh_token_post = refresh_token if refresh_token is not None else credentials.get("refresh")
+
+    payload_refresh = json.dumps({
+        'refresh': refresh_token_post
+    })
+
+    response = client.post(
+        reverse('users:refresh_token'), data=payload_refresh,
+        content_type='application/json')
+
+    assert response.status_code == expected_status
+
+    for key, value in expected_response.items():
+        assert key in response.data
+        if len(value) > 0:
+            assert value in response.data[key]
