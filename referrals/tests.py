@@ -5,7 +5,7 @@ from users.test_utils import get_credentials, create_user
 from django.urls import reverse
 from rest_framework import status
 from .models import Referral
-
+import pytest
 
 test_data = {
     "referral_email1": 'referr@ls1.com',
@@ -35,6 +35,19 @@ test_referals = [
         "accepted": True,
         "referral_id": ''
     }]
+
+
+@pytest.fixture
+@pytest.mark.django_db
+def mock_setup_data_get_count_referrals():
+    user_data = {
+        "email": "tipo@xcapit.com",
+        "password": "referrals1T"
+    }
+    user = create_user(**user_data, is_superuser=False)
+    user.referral_id = 'ref123'
+    user.save()
+    return user.pk
 
 
 @tag('referrals')
@@ -134,3 +147,21 @@ class ReferralsViewSetTestCase(TestCase):
         self.assertTrue('cursors' in response.data)
         self.assertTrue('links' in response.data)
         self.assertTrue('results' in response.data)
+
+
+@pytest.mark.parametrize('user_id_valid, expected_status, expected_response', [
+    [False, status.HTTP_404_NOT_FOUND, ['error']],
+    [True, status.HTTP_200_OK, ['referrals_count']] #El id es 2 porque la BD de test crea el usuario con ese id
+])
+@pytest.mark.django_db
+@pytest.mark.wip
+def test_get_count_referrals(client, user_id_valid, expected_status, expected_response, mock_setup_data_get_count_referrals):
+
+    user_id = mock_setup_data_get_count_referrals if user_id_valid else '1231323'
+
+    url = reverse('referrals:count-referrals', kwargs={'user_id': user_id})
+    response = client.get(url)
+
+    assert response.status_code == expected_status
+    for responseKey in expected_response:
+        assert responseKey in response.data
