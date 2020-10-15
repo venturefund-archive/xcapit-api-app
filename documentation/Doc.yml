@@ -885,6 +885,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedReferral"
 
+  /referrals/count/user/{user_id}:
+    get:
+      tags:
+        - "referrals"
+      summary: "Returns the amount of referrals of a user"
+      parameters:
+        - in: path
+          name: user_id
+          description: ID of the user to consult the referrals
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  referrals_count:
+                    type: "number"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [referrals.count.getCountReferrals]
 components:
   securitySchemes:
     jwtAuth:

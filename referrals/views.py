@@ -1,6 +1,7 @@
 from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from api_app.settings import PWA_DOMAIN
@@ -55,3 +56,16 @@ class ReferralsViewSet(ModelViewSet):
         referrals_page = paginator.paginate_queryset(referrals, request)
         serializer = self.serializer_class(referrals_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+class ReferralsCountView(APIView):
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not exist'}, status.HTTP_404_NOT_FOUND)
+        referrals_count = Referral.objects.filter(
+            referral_id=user.referral_id).count()
+
+        return Response({'referrals_count': referrals_count}, status=status.HTTP_200_OK)
