@@ -113,9 +113,13 @@ class SendEmailValidationTokenAPIView(APIView):
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         if user is not None:
-            email_validation = EmailValidation()
-            email_validation.send(user)
-            return Response({}, status.HTTP_200_OK)
+            if user.is_active:
+                response = Response({}, status.HTTP_400_BAD_REQUEST)
+                return add_error_code(response, 'users.sendEmailValidationToken.userAlreadyActive')
+            else:
+                email_validation = EmailValidation()
+                email_validation.send(user)
+                return Response({}, status.HTTP_200_OK)
         else:
             response = Response({}, status.HTTP_400_BAD_REQUEST)
             return add_error_code(response, 'users.sendEmailValidationToken.user')
