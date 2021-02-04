@@ -68,7 +68,6 @@ def test_profile_model_string_representation(user_data):
 @pytest.mark.django_db
 def test_profile_serializer_contain_expected_fields(profile_serializer):
     data = profile_serializer.data
-    print(data.keys())
     # Add email and cellphone because it is not used for profile valid, so not in profile_keys
     assert len(data.keys()) == len(profile_keys + ['email', 'cellphone'])
 
