@@ -5,7 +5,7 @@ from .models import Profile
 from .serializers import ProfileSerializer
 from users.test_utils import create_user
 
-personal_data_keys = ['first_name', 'last_name', 'nro_dni', 'cellphone']
+personal_data_keys = ['first_name']
 bill_data_keys = ['condicion_iva', 'tipo_factura', 'cuit', 'direccion', 'pais']
 profile_keys = personal_data_keys + bill_data_keys
 
@@ -14,8 +14,6 @@ profile_keys = personal_data_keys + bill_data_keys
 def personal_data():
     return {
         'first_name': 'TestName',
-        'last_name': 'TestLastName',
-        'nro_dni': '99999292',
         'cellphone': '3234434556'
     }
 
@@ -70,8 +68,9 @@ def test_profile_model_string_representation(user_data):
 @pytest.mark.django_db
 def test_profile_serializer_contain_expected_fields(profile_serializer):
     data = profile_serializer.data
-    # Add email because it is not used for profile valid, so not in profile_keys
-    assert len(data.keys()) == len(profile_keys + ['email'])
+    print(data.keys())
+    # Add email and cellphone because it is not used for profile valid, so not in profile_keys
+    assert len(data.keys()) == len(profile_keys + ['email', 'cellphone'])
 
 
 @pytest.mark.django_db
@@ -99,7 +98,7 @@ def test_personal_data_api_view(client, personal_data):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('field', ['first_name', 'last_name', 'nro_dni', 'cellphone'])
+@pytest.mark.parametrize('field', ['first_name'])
 def test_personal_data_api_view_invalid_data(client, personal_data, field):
     temp = personal_data.copy()
     temp.pop(field)
