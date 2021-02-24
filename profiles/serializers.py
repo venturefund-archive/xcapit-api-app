@@ -7,13 +7,11 @@ from .models import Profile
 class PersonalDataSerializer(serializers.ModelSerializer):
     email = serializers.ReadOnlyField(source='user.email')
     first_name = serializers.CharField(max_length=150, required=True, allow_blank=False, allow_null=False)
-    last_name = serializers.CharField(max_length=150, required=True, allow_blank=False, allow_null=False)
-    nro_dni = serializers.CharField(max_length=12, required=True, allow_blank=False, allow_null=False)
-    cellphone = serializers.CharField(max_length=24, required=True, allow_blank=False, allow_null=False)
+    cellphone = serializers.CharField(max_length=24, required=True, allow_blank=True, allow_null=False)
 
     class Meta:
         model = Profile
-        fields = ('email', 'first_name', 'last_name', 'nro_dni', 'cellphone')
+        fields = ('email', 'first_name', 'cellphone')
 
 
 class BillDataSerializer(serializers.ModelSerializer):
@@ -31,9 +29,7 @@ class BillDataSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     email = serializers.ReadOnlyField(source='user.email')
     first_name = serializers.CharField(max_length=150, required=True, allow_blank=False, allow_null=False)
-    last_name = serializers.CharField(max_length=150, required=True, allow_blank=False, allow_null=False)
-    nro_dni = serializers.CharField(max_length=12, required=True, allow_blank=False, allow_null=False)
-    cellphone = serializers.CharField(max_length=24, required=True, allow_blank=False, allow_null=False)
+    cellphone = serializers.CharField(max_length=24, required=True, allow_blank=True, allow_null=False)
     condicion_iva = serializers.CharField(max_length=50, required=True, allow_blank=True, allow_null=True)
     tipo_factura = serializers.CharField(max_length=15, required=True, allow_blank=True, allow_null=True)
     cuit = serializers.CharField(max_length=15, required=True, allow_blank=True, allow_null=True)
@@ -43,8 +39,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = (
-            'email', 'first_name', 'last_name',
-            'nro_dni', 'cellphone', 'condicion_iva',
+            'email', 'first_name', 'cellphone', 'condicion_iva',
             'tipo_factura', 'cuit', 'direccion', 'pais'
         )
 
