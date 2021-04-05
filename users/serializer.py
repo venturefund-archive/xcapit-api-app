@@ -1,3 +1,4 @@
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import user_logged_in
@@ -9,7 +10,6 @@ from referrals.services import referral_update
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(
         max_length=128,
         min_length=6,
@@ -33,24 +33,46 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    class NoActiveUserException(Exception):
+        def __init__(self):
+            self.error_code = 'noActiveUser'
+
+    class InvalidCredentialsException(Exception):
+        def __init__(self):
+            self.error_code = 'invalidCredentials'
+
     @classmethod
     def get_token(cls, user):
         return RefreshToken.for_user(user)
 
+    def _get_exception(self, email):
+        user = User.objects.filter(email=email)
+        return self.NoActiveUserException() if user.filter(is_active=False).exists() else \
+            self.InvalidCredentialsException()
+
+    def _validate(self, attrs):
+        try:
+            return super().validate(attrs)
+        except AuthenticationFailed:
+            raise self._get_exception(attrs.get('email'))
+
     def validate(self, attrs):
-        # Override de metodo para poder disparar señales de logged_in,
-        # failed se dispara sola al no poder loguear
         request = self.context['request']
-        data = super().validate(attrs)
+        data = self._validate(attrs)
         user_logged_in.send(sender=User, request=request, user=self.user)
         refresh = self.get_token(self.user)
         data['refresh'] = str(refresh)
         data['access'] = str(refresh.access_token)
         return data
 
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
 
 class ResetPasswordSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(
         max_length=128,
         min_length=6,
@@ -83,7 +105,6 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
-
     actual_password = serializers.CharField(write_only=True)
 
     password = serializers.CharField(

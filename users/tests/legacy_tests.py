@@ -1,23 +1,18 @@
 import json
-from unittest.mock import patch
-
 import pytest
-from django.test import TestCase, tag
-from rest_framework import status
-from rest_framework.serializers import ValidationError
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_str, force_bytes
+from users.models import User
 from django.urls import reverse
-from django.utils.safestring import SafeText
-
-from .models import User
-from .serializer import RegistrationSerializer, ResetPasswordSerializer, \
-    ChangePasswordSerializer
-from .validators import number_validator, uppercase_validator, \
-    lowercase_validator
-from .tokens import email_validation_token
-from .emails import EmailValidation, ResetPasswordEmail
-from .test_utils import get_credentials, create_user
+from unittest.mock import patch
+from rest_framework import status
+from django.test import TestCase, tag
+from users.tokens import email_validation_token
+from django.utils.http import urlsafe_base64_encode
+from users.test_utils import get_credentials, create_user
+from rest_framework.serializers import ValidationError
+from users.emails import EmailValidation, ResetPasswordEmail
+from django.utils.encoding import force_str, force_bytes
+from users.validators import number_validator, uppercase_validator, lowercase_validator
+from users.serializer import RegistrationSerializer, ResetPasswordSerializer, ChangePasswordSerializer
 
 
 class UserTestCase(TestCase):
@@ -351,8 +346,7 @@ class LoginUrlTestCase(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.json()['error_code'],
-                         'users.login.invalidCredentials')
+        self.assertEqual(response.json()['error_code'], 'users.login.noActiveUser')
 
     def test_fail_login_user_invalid_email(self):
         payload = json.dumps({
@@ -365,8 +359,7 @@ class LoginUrlTestCase(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.json()['error_code'],
-                         'users.login.invalidCredentials')
+        self.assertEqual(response.json()['error_code'], 'users.login.invalidCredentials')
 
     def test_fail_login_user_invalid_password(self):
         payload = json.dumps({
