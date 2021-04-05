@@ -10,7 +10,6 @@ from referrals.services import referral_update
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(
         max_length=128,
         min_length=6,
@@ -34,7 +33,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-
     class NoActiveUserException(Exception):
         def __init__(self):
             self.error_code = 'noActiveUser'
@@ -48,11 +46,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return RefreshToken.for_user(user)
 
     def _get_exception(self, email):
-        exception_class = self.InvalidCredentialsException
         user = User.objects.filter(email=email)
-        if user.filter(is_active=False).exists():
-            exception_class = self.NoActiveUserException
-        return exception_class()
+        return self.NoActiveUserException() if user.filter(is_active=False).exists() else \
+            self.InvalidCredentialsException()
 
     def _validate(self, attrs):
         try:
@@ -77,7 +73,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class ResetPasswordSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(
         max_length=128,
         min_length=6,
@@ -110,7 +105,6 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
-
     actual_password = serializers.CharField(write_only=True)
 
     password = serializers.CharField(
