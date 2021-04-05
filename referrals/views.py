@@ -38,7 +38,6 @@ class ReferralsViewSet(ModelViewSet):
 
     @staticmethod
     def _create_data_for_notification(user: User, referral_email: str):
-        print(user.referral_id)
         return {
             'referral_email': referral_email,
             'encode_email': force_str(urlsafe_base64_encode(force_bytes(referral_email))),
