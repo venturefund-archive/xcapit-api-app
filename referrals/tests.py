@@ -154,7 +154,6 @@ class ReferralsViewSetTestCase(TestCase):
     [True, status.HTTP_200_OK, ['referrals_count']] #El id es 2 porque la BD de test crea el usuario con ese id
 ])
 @pytest.mark.django_db
-@pytest.mark.wip
 def test_get_count_referrals(client, user_id_valid, expected_status, expected_response, mock_setup_data_get_count_referrals):
 
     user_id = mock_setup_data_get_count_referrals if user_id_valid else '1231323'

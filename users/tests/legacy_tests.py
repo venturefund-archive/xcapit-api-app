@@ -204,42 +204,6 @@ class EmailValidationTokenAPIViewTestCase(TestCase):
                          'users.emailValidation.invalid')
 
 
-@tag('send_email_validation')
-class SendEmailValidationTokenAPIViewTestCase(TestCase):
-
-    def setUp(self):
-        user = User(email="test13@test.com", password="test")
-        user.save()
-        self.token = email_validation_token.make_token(user)
-        self.uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
-
-    @patch('requests.post')
-    def test_send_email_validation_valid(self, mock_post):
-        mock_post.return_value.json.return_value = {}
-        mock_post.return_value.status_code = status.HTTP_200_OK
-        payload = json.dumps({
-            'uidb64': self.uidb64
-        })
-        response = self.client.post(
-            reverse('users:send-email-validation'),
-            data=payload,
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_send_email_validation_invalid(self):
-        payload = json.dumps({
-            'uidb64': 'xx'
-        })
-        response = self.client.post(
-            reverse('users:send-email-validation'),
-            data=payload,
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error_code'], 'users.sendEmailValidationToken.user')
-
-
 @tag('user_registration_serializer')
 class RegistrationSerializerTestCase(TestCase):
 
