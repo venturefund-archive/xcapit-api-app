@@ -103,13 +103,10 @@ class EmailValidationTokenAPIView(APIView):
 class SendEmailValidationTokenAPIView(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()
-    notifications_client = NotificationsClient()
 
     def post(self, request):
         try:
-            uid = force_str(urlsafe_base64_decode(
-                request.data.get('uidb64', '')))
-            user = User.objects.get(pk=uid)
+            user = User.objects.get(email=request.data.get('email', ''))
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         if user is not None:
