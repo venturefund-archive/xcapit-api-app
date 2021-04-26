@@ -49,7 +49,7 @@ paths:
                 properties:
                   error_code:
                     type: "string"
-                    enum: ['users.registration.invalidData', 
+                    enum: ['users.registration.invalidData',
                            'users.registration.referralIdNotExists']
   /users/email_validation:
     post:
@@ -143,14 +143,14 @@ paths:
       summary: "Envía el email de validación"
       description: "Se usa en caso de que falle el envío cuando se registra el usuario"
       requestBody:
-        description: "El id del usuario en base64"
+        description: "El id del usuario en base64 o el email del usuario"
         required: true
         content:
           application/json:
             schema:
-              properties:
-                uidb64:
-                  type: "string"
+              oneOf:
+                - $ref: "#/components/schemas/Uidb64"
+                - $ref: "#/components/schemas/Email"
       responses:
         200:
           description: "Ok"
@@ -167,7 +167,7 @@ paths:
                 properties:
                   error_code:
                     type: "string"
-                    enum: [users.sendEmailValidationToken.user]
+                    enum: [users.sendEmailValidationToken.user, users.sendEmailValidationToken.userAlreadyActive]
   /users/send_reset_password_email:
     post:
       tags:
@@ -355,7 +355,7 @@ paths:
           description: id del usuario
           required: true
           schema:
-            type: "string"      
+            type: "string"
       responses:
         200:
           description: "Ok"
@@ -507,11 +507,11 @@ paths:
               schema:
                 type: "object"
                 properties:
-                  valid: 
+                  valid:
                     type: "boolean"
         204:
           description: "No content"
-    
+
 
   /stats/users/count:
     get:
@@ -1171,3 +1171,14 @@ components:
               type: "string"
             previous:
               type: "string"
+
+    Uidb64:
+      type: "object"
+      properties:
+        uidb64:
+          type: "string"
+    Email:
+      type: "object"
+      properties:
+        email:
+          type: "string"

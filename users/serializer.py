@@ -148,3 +148,27 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update():
         pass
+
+
+class ResendEmailValidation(serializers.Serializer):
+    uidb64 = serializers.CharField(max_length=255, required=False)
+    email = serializers.CharField(max_length=255, required=False)
+
+    def validate(self, attrs):
+        self.fields_mutually_exclusive(attrs)
+        self.empty_fields(attrs)
+        return super().validate(attrs)
+
+    @staticmethod
+    def fields_mutually_exclusive(data):
+        field1 = data.get('uidb64', None)
+        field2 = data.get('email', None)
+        if field1 is not None and field2 is not None:
+            raise serializers.ValidationError('Los campos son mutuamente exclusivos')
+
+    @staticmethod
+    def empty_fields(data):
+        field1 = data.get('uidb64', None)
+        field2 = data.get('email', None)
+        if field1 is None and field2 is None:
+            raise serializers.ValidationError('Debe existir al menos uno de los campos requeridos: email, uidb64')
