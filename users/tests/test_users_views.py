@@ -4,7 +4,6 @@ from unittest.mock import patch
 from rest_framework import status
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 @pytest.mark.parametrize('user_is_active, data, expected_status, expected_response', [
     [False, {'uidb64': 'MQ'}, status.HTTP_200_OK, {}],
