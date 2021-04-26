@@ -1,5 +1,5 @@
 from core.clients import NotificationsClient
-from .serializer import CustomTokenObtainPairSerializer
+from .serializer import CustomTokenObtainPairSerializer, ResendEmailValidation
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -14,7 +14,7 @@ from .tokens import email_validation_token
 from .emails import EmailValidation, ResetPasswordEmail
 from core.helpers import ResponseHelper
 from rest_framework.exceptions import AuthenticationFailed
-from .services import get_hashid
+from .services import get_hashid, ResendEmailValidationService
 from rest_framework.permissions import IsAuthenticated
 from users.serializer import UserSerializer
 from profiles.models import Profile
@@ -103,23 +103,16 @@ class EmailValidationTokenAPIView(APIView):
 class SendEmailValidationTokenAPIView(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()
+    serializer_class = ResendEmailValidation
 
     def post(self, request):
-        try:
-            user = User.objects.get(email=request.data.get('email', ''))
-        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
-        if user is not None:
-            if user.is_active:
-                response = Response({}, status.HTTP_400_BAD_REQUEST)
-                return add_error_code(response, 'users.sendEmailValidationToken.userAlreadyActive')
-            else:
-                email_validation = EmailValidation()
-                email_validation.send(user)
-                return Response({}, status.HTTP_200_OK)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            resend_email_service = ResendEmailValidationService(request.data)
+            response = resend_email_service.execute()
         else:
-            response = Response({}, status.HTTP_400_BAD_REQUEST)
-            return add_error_code(response, 'users.sendEmailValidationToken.user')
+            response = Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return response
 
 
 class ObtainJWTView(TokenObtainPairView):
