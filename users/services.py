@@ -23,12 +23,12 @@ class ResendEmailValidationService:
         self._response = None
 
     def execute(self):
-        self.decode_uidb64()
-        self.get_user()
-        self.check_if_user_is_none()
+        self._decode_uidb64()
+        self._get_user()
+        self._check_if_user_is_none()
         return self._response
 
-    def get_user(self):
+    def _get_user(self):
         filter_kwargs = self.get_filter_parameter()
         try:
             self._user = User.objects.get(**filter_kwargs)
@@ -39,24 +39,24 @@ class ResendEmailValidationService:
         filter_kwargs = {'pk': self._uidb64} if self._uidb64 is not None else {'email': self._email}
         return filter_kwargs
 
-    def decode_uidb64(self):
+    def _decode_uidb64(self):
         if self._uidb64 is not None:
             self._uidb64 = force_str(urlsafe_base64_decode(self._uidb64))
 
-    def check_if_user_is_none(self):
+    def _check_if_user_is_none(self):
         if self._user is not None:
-            self.is_active()
+            self._is_active()
         else:
             self._response = Response({'error_code': 'users.sendEmailValidationToken.user'},
                                       status.HTTP_400_BAD_REQUEST)
 
-    def is_active(self):
+    def _is_active(self):
         if self._user.is_active:
             self._response = Response({'error_code': 'users.sendEmailValidationToken.userAlreadyActive'},
                                       status.HTTP_400_BAD_REQUEST)
         else:
-            self.send_email()
+            self._send_email()
 
-    def send_email(self):
+    def _send_email(self):
         self._send_email_validation_class.send(self._user)
         self._response = Response({}, status.HTTP_200_OK)
