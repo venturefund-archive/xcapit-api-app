@@ -168,6 +168,37 @@ paths:
                   error_code:
                     type: "string"
                     enum: [users.sendEmailValidationToken.user]
+  /users/send_email_validation_by_email:
+    post:
+      tags:
+        - "users"
+      summary: "Envía el email de validación al email provisto"
+      requestBody:
+        description: "El email del usuario al que se quiere mandar el email"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: "string"
+      responses:
+        200:
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                type: "object"
+        400:
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    enum: [users.sendEmailValidationToken.user]
   /users/send_reset_password_email:
     post:
       tags:
