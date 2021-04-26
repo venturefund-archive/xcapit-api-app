@@ -106,6 +106,31 @@ class SendEmailValidationTokenAPIView(APIView):
 
     def post(self, request):
         try:
+            uid = force_str(urlsafe_base64_decode(
+                request.data.get('uidb64', '')))
+            user = User.objects.get(pk=uid)
+            print(user)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None:
+            if user.is_active:
+                response = Response({}, status.HTTP_400_BAD_REQUEST)
+                return add_error_code(response, 'users.sendEmailValidationToken.userAlreadyActive')
+            else:
+                email_validation = EmailValidation()
+                email_validation.send(user)
+                return Response({}, status.HTTP_200_OK)
+        else:
+            response = Response({}, status.HTTP_400_BAD_REQUEST)
+            return add_error_code(response, 'users.sendEmailValidationToken.user')
+
+
+class SendEmailValidationByEmailView(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request):
+        try:
             user = User.objects.get(email=request.data.get('email', ''))
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None

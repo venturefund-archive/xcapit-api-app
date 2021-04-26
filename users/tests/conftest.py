@@ -12,4 +12,5 @@ def create_user():
         user.is_active = is_active
         user.is_superuser = is_superuser
         user.save()
+        return user
     return cu
