@@ -199,3 +199,7 @@ LOGGING = {
         },
     },
 }
+
+CLIENT_ID_1 = '840751586681-35nflvl2e8e8tn0mb6uin9bgrptjgkf6.apps.googleusercontent.com'
+CLIENT_ID_2 = '840751586681-6mrinfnm1o42lge5pdbb64l5h57mjtqv.apps.googleusercontent.com'
+CLIENT_ID_3 = '840751586681-726sic8vcan7qa9anckr9ju3fgu9edb2.apps.googleusercontent.com'

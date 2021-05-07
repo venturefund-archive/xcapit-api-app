@@ -1,5 +1,6 @@
 from core.clients import NotificationsClient
-from .serializer import CustomTokenObtainPairSerializer, ResendEmailValidation
+from .serializer import CustomTokenObtainPairSerializer, ResendEmailValidation, \
+    CustomGoogleTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -21,6 +22,10 @@ from profiles.models import Profile
 from profiles.serializers import ProfileSerializer
 from referrals.services import validate_referral
 from referrals.models import Referral
+from google.oauth2 import id_token as token_auth
+from google.auth.transport import requests as google_auth_request
+from api_app.settings import CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3
+from django.utils import timezone
 
 add_error_code = ResponseHelper.add_error_code
 
@@ -115,6 +120,61 @@ class SendEmailValidationTokenAPIView(APIView):
         return response
 
 
+class LoginWithGoogleAPIView(APIView):
+    serializer_class = CustomGoogleTokenObtainPairSerializer
+
+    def post(self, request):
+        id_token = request.data['id_token']
+        idinfo = self.verify_google_oauth2(id_token)
+
+        if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+            response = Response({'error': 'Error client access'}, status=status.HTTP_400_BAD_REQUEST)
+            return add_error_code(response, 'users.login.notClientAccess')
+
+        if idinfo['email_verified'] is not True:
+            response = Response({'error': 'Google account not verified'}, status=status.HTTP_400_BAD_REQUEST)
+            return add_error_code(response, 'users.login.notVerifiedGoogleAccount')
+
+        user_queryset = User.objects.filter(email=idinfo['email'])
+
+        if not user_queryset.exists():
+            user = self.register_user(idinfo)
+        else:
+            user = user_queryset.first()
+            if len(user.password) > 0:
+                response = Response({'error': 'User register with another account'}, status=status.HTTP_400_BAD_REQUEST)
+                return add_error_code(response, 'users.login.notGoogleLoginUser')
+
+        data = self.serializer_class.get_token(user)
+
+        self.update_last_login(user)
+
+        return Response(data, status.HTTP_200_OK)
+
+    @staticmethod
+    def verify_google_oauth2(id_token):
+        req = google_auth_request.Request()
+
+        return token_auth.verify_oauth2_token(id_token, req)
+
+    @staticmethod
+    def register_user(info):
+        user_instance = User.objects.create(email=info['email'])
+        user_instance.is_active = True
+        user_instance.referral_id = get_hashid(user_instance.pk)
+        user_instance.last_login = timezone.now()
+        user_instance.save()
+
+        return user_instance
+
+    @staticmethod
+    def update_last_login(user_instance):
+        user_instance.last_login = timezone.now()
+        user_instance.save()
+
+        return user_instance
+
+
 class ObtainJWTView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     _error_code_prefix = 'users.login.'
@@ -130,6 +190,10 @@ class ObtainJWTView(TokenObtainPairView):
         self._response = add_error_code(self._response, f'{self._error_code_prefix}{error_code}')
 
     def post(self, request, *args, **kwargs):
+        if len(request.data['password']) == 0:
+            self._set_response_status(status.HTTP_401_UNAUTHORIZED)
+            self._add_error_code(self.serializer_class.InvalidCredentialsException().error_code)
+
         try:
             self._response = super(ObtainJWTView, self).post(request, *args, **kwargs)
         except (
