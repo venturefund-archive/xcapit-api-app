@@ -1,5 +1,5 @@
 from core.clients import NotificationsClient
-from .serializer import CustomTokenObtainPairSerializer
+from .serializer import CustomTokenObtainPairSerializer, ResendEmailValidation
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -14,13 +14,14 @@ from .tokens import email_validation_token
 from .emails import EmailValidation, ResetPasswordEmail
 from core.helpers import ResponseHelper
 from rest_framework.exceptions import AuthenticationFailed
-from .services import get_hashid
+from .services import get_hashid, ResendEmailValidationService
 from rest_framework.permissions import IsAuthenticated
 from users.serializer import UserSerializer
 from profiles.models import Profile
 from profiles.serializers import ProfileSerializer
 from referrals.services import validate_referral
 from referrals.models import Referral
+
 add_error_code = ResponseHelper.add_error_code
 
 
@@ -100,43 +101,45 @@ class EmailValidationTokenAPIView(APIView):
 
 
 class SendEmailValidationTokenAPIView(APIView):
-
     permission_classes = (AllowAny,)
     authentication_classes = ()
-    notifications_client = NotificationsClient()
+    serializer_class = ResendEmailValidation
 
     def post(self, request):
-        try:
-            uid = force_str(urlsafe_base64_decode(
-                request.data.get('uidb64', '')))
-            user = User.objects.get(pk=uid)
-        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
-        if user is not None:
-            if user.is_active:
-                response = Response({}, status.HTTP_400_BAD_REQUEST)
-                return add_error_code(response, 'users.sendEmailValidationToken.userAlreadyActive')
-            else:
-                email_validation = EmailValidation()
-                email_validation.send(user)
-                return Response({}, status.HTTP_200_OK)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            resend_email_service = ResendEmailValidationService(request.data)
+            response = resend_email_service.execute()
         else:
-            response = Response({}, status.HTTP_400_BAD_REQUEST)
-            return add_error_code(response, 'users.sendEmailValidationToken.user')
+            response = Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return response
 
 
 class ObtainJWTView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+    _error_code_prefix = 'users.login.'
 
-    # Enviar error code cuando no puede loguear
+    def __init__(self, *args, **kwargs):
+        super(ObtainJWTView, self).__init__(*args, **kwargs)
+        self._response = Response({}, status=status.HTTP_200_OK)
+
+    def _set_response_status(self, status_code: int):
+        self._response.status_code = status_code
+
+    def _add_error_code(self, error_code: str):
+        self._response = add_error_code(self._response, f'{self._error_code_prefix}{error_code}')
+
     def post(self, request, *args, **kwargs):
         try:
-            return super(ObtainJWTView, self).post(request, *args, **kwargs)
-        except AuthenticationFailed as e:
-            return add_error_code(Response(
-                {'error': e.get_full_details()},
-                status=status.HTTP_401_UNAUTHORIZED),
-                'users.login.invalidCredentials')
+            self._response = super(ObtainJWTView, self).post(request, *args, **kwargs)
+        except (
+                self.serializer_class.InvalidCredentialsException,
+                self.serializer_class.NoActiveUserException
+        ) as e:
+            self._set_response_status(status.HTTP_401_UNAUTHORIZED)
+            self._add_error_code(e.error_code)
+        finally:
+            return self._response
 
 
 class SendResetPasswordEmailAPIView(APIView):
@@ -166,7 +169,6 @@ class SendResetPasswordEmailAPIView(APIView):
 
 
 class ResetPasswordAPIView(APIView):
-
     permission_classes = (AllowAny,)
     authentication_classes = ()
     serializer_class = ResetPasswordSerializer
@@ -189,7 +191,6 @@ class ResetPasswordAPIView(APIView):
 
 
 class ChangePasswordAPIView(APIView):
-
     serializer_class = ChangePasswordSerializer
 
     def post(self, request, pk):
