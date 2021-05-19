@@ -25,7 +25,8 @@ from referrals.models import Referral
 from google.oauth2 import id_token as token_auth
 from google.auth.transport import requests as google_auth_request
 from api_app.settings import CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3
-from django.utils import timezone
+from datetime import datetime
+
 
 add_error_code = ResponseHelper.add_error_code
 
@@ -162,14 +163,14 @@ class LoginWithGoogleAPIView(APIView):
         user_instance = User.objects.create(email=info['email'])
         user_instance.is_active = True
         user_instance.referral_id = get_hashid(user_instance.pk)
-        user_instance.last_login = timezone.now()
+        user_instance.last_login = datetime.utcnow()
         user_instance.save()
 
         return user_instance
 
     @staticmethod
     def update_last_login(user_instance):
-        user_instance.last_login = timezone.now()
+        user_instance.last_login = datetime.utcnow()
         user_instance.save()
 
         return user_instance
