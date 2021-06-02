@@ -12,6 +12,10 @@ DATABASES = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
+CLIENT_ID_1 = 'client_test'
+CLIENT_ID_2 = 'client_test'
+CLIENT_ID_3 = 'client_test'
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True

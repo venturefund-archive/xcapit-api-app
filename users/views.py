@@ -24,8 +24,8 @@ from referrals.services import validate_referral
 from referrals.models import Referral
 from google.oauth2 import id_token as token_auth
 from google.auth.transport import requests as google_auth_request
-from api_app.settings import CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3
 from datetime import datetime
+from django.conf import settings
 
 
 add_error_code = ResponseHelper.add_error_code
@@ -128,7 +128,7 @@ class LoginWithGoogleAPIView(APIView):
         id_token = request.data['id_token']
         idinfo = self.verify_google_oauth2(id_token)
 
-        if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+        if idinfo['aud'] not in [settings.CLIENT_ID_1, settings.CLIENT_ID_2, settings.CLIENT_ID_3]:
             response = Response({'error': 'Error client access'}, status=status.HTTP_400_BAD_REQUEST)
             return add_error_code(response, 'users.login.notClientAccess')
 

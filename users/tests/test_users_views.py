@@ -38,8 +38,8 @@ def test_send_email_validation_token(mock_send_email, client, create_user, user_
 USER_DATA = {
      'iss': 'https://accounts.google.com',
      'sub': '110169484474386276334',
-     'azp': '840751586681-35nflvl2e8e8tn0mb6uin9bgrptjgkf6.apps.googleusercontent.com',
-     'aud': '840751586681-35nflvl2e8e8tn0mb6uin9bgrptjgkf6.apps.googleusercontent.com',
+     'azp': 'client_test',
+     'aud': 'client_test',
      'iat': '1433978353',
      'exp': '1433981953',
      'email': 'testuser@gmail.com',
@@ -58,7 +58,7 @@ USER_DATA_FALSE = {
 }
 
 USER_DATA_FALSE_2 = {
-     'aud': '840751586681-35nflvl2e8e8tn0mb6uin9bgrptjgkf6.apps.googleusercontent.com',
+     'aud': 'client_test',
      'email': 'testuser@gmail.com',
      'email_verified': False,
 }
