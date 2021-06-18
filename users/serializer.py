@@ -32,6 +32,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return result
 
 
+class CustomGoogleTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        data = {}
+        refresh = RefreshToken.for_user(user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        return data
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     class NoActiveUserException(Exception):
         def __init__(self):
