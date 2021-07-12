@@ -11,7 +11,7 @@ def test_get_payment_methods_returns_an_emtpy_array(client):
 
 
 @pytest.mark.django_db
-def test_create_a_free_subscription_view(client, create_user):
+def test_create_a_free_subscription_view(client, create_user, plan_saved):
     data = {'user_id': create_user().pk}
 
     response = client.post(reverse('subscription_plans:create_free_subscription'), data=data)
@@ -20,7 +20,7 @@ def test_create_a_free_subscription_view(client, create_user):
 
 
 @pytest.mark.django_db
-def test_create_a_free_subscription_saves_on_db(client, create_user):
+def test_create_a_free_subscription_saves_on_db(client, create_user, plan_saved):
     data = {'user_id': create_user().pk}
 
     client.post(reverse('subscription_plans:create_free_subscription'), data=data)
