@@ -18,4 +18,4 @@ class FreePlanSubscriptionAPIView(APIView):
             user=User.objects.get(pk=request.data.get('user_id')),
             plan=PlanModel.objects.get(type='free')
         ).save()
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(data={}, status=status.HTTP_201_CREATED)
