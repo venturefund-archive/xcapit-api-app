@@ -204,3 +204,6 @@ LOGGING = {
 CLIENT_ID_1 = os.environ.get('CLIENT_ID_1')
 CLIENT_ID_2 = os.environ.get('CLIENT_ID_2')
 CLIENT_ID_3 = os.environ.get('CLIENT_ID_3')
+
+API_MERCADOPAGO = os.getenv('API_MERCADOPAGO')
+MERCADOPAGO_ACCESS_TOKEN = os.getenv('MERCADOPAGO_ACCESS_TOKEN')
