@@ -12,7 +12,12 @@ from subscription_plans.models import PlanSubscriptionModel, PlanModel, PaymentM
 class PaymentMethodsByPlanAPIView(APIView):
 
     def get(self, request, plan_id):
-        return Response(data=[], status=status.HTTP_200_OK)
+        payment_methods = self.get_all_payment_methods() if plan_id != "1" else []
+        return Response(data=payment_methods, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def get_all_payment_methods():
+        return list(PaymentMethodModel.objects.all().values('id', 'name', 'description'))
 
 
 class FreePlanSubscriptionAPIView(APIView):
