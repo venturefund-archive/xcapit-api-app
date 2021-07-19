@@ -6,6 +6,5 @@ class PlanSubscription:
         pass
 
 
-@pytest.mark.wip
 def test_plan_subscription():
     assert PlanSubscription()

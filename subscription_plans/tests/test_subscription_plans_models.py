@@ -3,7 +3,6 @@ from datetime import datetime
 from subscription_plans.models import PlanSubscriptionModel, PlanModel, PaymentMethodModel, PaymentModel
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_plan_subscription_model(create_user, create_payment_method, plan_saved):
     model = PlanSubscriptionModel(
@@ -22,7 +21,6 @@ def test_plan_subscription_model(create_user, create_payment_method, plan_saved)
     assert len(PlanSubscriptionModel.objects.all()) == 1
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_plan_model(plan_to_save):
     model = PlanModel(**plan_to_save)
@@ -32,7 +30,6 @@ def test_plan_model(plan_to_save):
     assert len(PlanModel.objects.all()) == 1
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_payment_method_model(payment_method_to_save):
     model = PaymentMethodModel(**payment_method_to_save)
@@ -42,7 +39,6 @@ def test_payment_method_model(payment_method_to_save):
     assert len(PaymentMethodModel.objects.all()) == 1
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_payment_model(payment_to_save, create_plan_subscription):
     model = PaymentModel(
