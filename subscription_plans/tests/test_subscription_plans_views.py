@@ -4,7 +4,6 @@ from subscription_plans.models import PlanSubscriptionModel, PaymentMethodModel
 from rest_framework import status
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 @pytest.mark.parametrize('plan_id, expected_response', [
     [1, []],
