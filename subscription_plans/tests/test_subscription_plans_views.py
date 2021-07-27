@@ -29,14 +29,17 @@ def test_create_a_free_subscription_saves_on_db(client, create_user, plan_saved)
     assert len(PlanSubscriptionModel.objects.all()) == 1
 
 
+@pytest.mark.wip
 @pytest.mark.django_db
 @patch('requests.Session.post')
-def test_paid_subscription_link_view(mock_post, client, create_user, plan_saved):
-    mock_post.return_value = Mock(json=lambda *args, **kwargs: {'init_point': 'test_link'}, status_code=201)
+def test_paid_subscription_link_view(mock_post, client, create_user, plan_saved, create_payment_method):
+
+    mock_post.return_value = Mock(json=lambda: {'init_point': 'test_link'}, status_code=201)
     user = create_user('test@xcapit.com')
     data = {
         'user_id': user.id,
-        'plan_id': plan_saved.id
+        'plan_id': plan_saved.id,
+        'payment_method_id': create_payment_method().id
     }
     response = client.post(reverse('subscription_plans:paid_subscription_link'), data=data)
     assert response.status_code == 200

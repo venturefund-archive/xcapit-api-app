@@ -14,6 +14,12 @@ PLAN_STATE_CHOICES = [
 ]
 
 
+SUBSCRIPTION_STATUS_CHOICES = [
+    ('pending', 'pending'),
+    ('authorized', 'authorized'),
+]
+
+
 FREQUENCY_TYPE_CHOICES = [
     ('months', 'months'),
     ('years', 'years'),
@@ -53,6 +59,7 @@ class PlanSubscriptionModel(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
     currency = models.CharField(max_length=15)
+    status = models.CharField(max_length=150, choices=SUBSCRIPTION_STATUS_CHOICES)
 
 
 class PaymentModel(models.Model):

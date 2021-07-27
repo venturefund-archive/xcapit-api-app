@@ -3,8 +3,8 @@ from users.models import User
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from subscription_plans.subscription_link import SubscriptionLink
-from subscription_plans.models import PlanSubscriptionModel, PlanModel
+from subscription_plans.subscription import Subscription
+from subscription_plans.models import PlanSubscriptionModel, PlanModel, PaymentMethodModel
 
 
 class PaymentMethodsByPlanAPIView(APIView):
@@ -27,8 +27,21 @@ class FreePlanSubscriptionAPIView(APIView):
 class PaidSubscriptionLinkAPIView(APIView):
 
     def post(self, request):
-        subscription_link = SubscriptionLink.create(
-            PlanModel.objects.get(id=request.data.get('plan_id')),
-            User.objects.get(id=request.data.get('user_id'))
+        subscription = Subscription.create(self._create_plan_subscription(request))
+        return Response({'link': subscription.created().link().value()}, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def _create_plan_subscription(request):
+        return PlanSubscriptionModel(
+            user=User.objects.get(id=request.data.get('user_id')),
+            plan=PlanModel.objects.get(id=request.data.get('plan_id')),
+            payment_method=PaymentMethodModel.objects.get(pk=request.data.get('payment_method_id')),
+            start_date=datetime.utcnow(),
+            currency='ARS',
+            status='pending',
         )
-        return Response({'link': subscription_link.value()}, status=status.HTTP_200_OK)
+
+
+class MercadopagoWebhookAPIView(APIView):
+    def post(self, request):
+        pass

@@ -1,6 +1,5 @@
-import pytest
 from unittest.mock import patch
-from subscription_plans.http_methods import PostMethod
+from core.http.http_methods import PostMethod
 
 
 def test_post_method():
