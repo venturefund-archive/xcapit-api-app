@@ -11,7 +11,7 @@ from subscription_plans.mercadopago.mercadopago_subscription_request import Merc
 
 @pytest.mark.wip
 def test_subscription_of():
-    assert LastAuthorizedSubscriptionOf(Mock(), Mock())
+    assert LastAuthorizedSubscriptionOf(Mock())
 
 
 @pytest.mark.wip
@@ -19,9 +19,7 @@ def test_last_authorized_subscription_of(
         mercadopago_subscription_request_search,
         mercadopago_subscription_search_results
 ):
-    payer_email = PayerEmail(MercadopagoPaymentRequest.create(FakeHTTPMethod(), 1, EmptyRequestBody()))
     subscription = LastAuthorizedSubscriptionOf(
-        payer_email,
         mercadopago_subscription_request_search(mercadopago_subscription_search_results)
     )
     assert subscription.value() == [{
@@ -37,8 +35,7 @@ def test_last_authorized_subscription_of(
 @pytest.mark.django_db
 def test_last_authorized_subscription_of_empty(create_plan_subscription, mercadopago_subscription_request_search):
     create_plan_subscription()
-    payer_email = PayerEmail(MercadopagoPaymentRequest.create(FakeHTTPMethod(), 1, EmptyRequestBody()))
-    subscription = LastAuthorizedSubscriptionOf(payer_email, mercadopago_subscription_request_search([]))
+    subscription = LastAuthorizedSubscriptionOf(mercadopago_subscription_request_search([]))
     assert subscription.value() == {}
     subscription.authorize()
 
@@ -52,7 +49,6 @@ def test_last_authorized_subscription_of_empty(
 ):
     create_plan_subscription()
     subscription = LastAuthorizedSubscriptionOf(
-        Mock(spec=PayerEmail, value=lambda: 'test@xcapit.com'),
         Mock(
             spec=MercadopagoSubscriptionRequest,
             response=lambda: Mock(json=lambda: {'results': mercadopago_subscription_search_results})

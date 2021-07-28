@@ -15,7 +15,7 @@ def test_payer_email_value():
     payer_email = PayerEmail(
         Mock(
             spec=MercadopagoPaymentRequest,
-            response=lambda: Mock(spec=Response, json=lambda: {'payer_email': 'test@xcapit.com'})
+            response=lambda: Mock(spec=Response, json=lambda: {'payer': {'email': 'test@xcapit.com'}})
         )
     )
     assert payer_email.value() == 'test@xcapit.com'

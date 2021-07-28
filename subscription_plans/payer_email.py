@@ -6,4 +6,4 @@ class PayerEmail:
         self._mercadopago_payment_request = mercadopago_payment_request
 
     def value(self):
-        return self._mercadopago_payment_request.response().json().get('payer_email')
+        return self._mercadopago_payment_request.response().json().get('payer').get('email')

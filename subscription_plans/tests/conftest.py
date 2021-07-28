@@ -146,3 +146,19 @@ def mercadopago_subscription_request_search():
 @pytest.fixture
 def last_authorized_subscription_raw(mercadopago_subscription_search_results):
     return mercadopago_subscription_search_results[0]
+
+
+@pytest.fixture
+def payment_created_webhook_data():
+    return {
+        "action": "payment.created",
+        "api_version": "v1",
+        "data": {
+            "id": "16065484941"
+        },
+        "date_created": "2021-07-27T20:35:08Z",
+        "id": 7764932952,
+        "live_mode": True,
+        "type": "payment",
+        "user_id": "141910043"
+    }

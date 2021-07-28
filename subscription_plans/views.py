@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from subscription_plans.subscription import Subscription
+from subscription_plans.mercadopago.mercadopago_webhook import MercadopagoWebhook
+from subscription_plans.mercadopago.payment_created_event import PaymentCreatedEvent
 from subscription_plans.models import PlanSubscriptionModel, PlanModel, PaymentMethodModel
 
 
@@ -32,7 +34,7 @@ class PaidSubscriptionLinkAPIView(APIView):
 
     @staticmethod
     def _create_plan_subscription(request):
-        return PlanSubscriptionModel(
+        return PlanSubscriptionModel.objects.create(
             user=User.objects.get(id=request.data.get('user_id')),
             plan=PlanModel.objects.get(id=request.data.get('plan_id')),
             payment_method=PaymentMethodModel.objects.get(pk=request.data.get('payment_method_id')),
@@ -44,4 +46,5 @@ class PaidSubscriptionLinkAPIView(APIView):
 
 class MercadopagoWebhookAPIView(APIView):
     def post(self, request):
-        pass
+        MercadopagoWebhook(request.data, {'payment.created': PaymentCreatedEvent.create}).dispatch_events()
+        return Response({}, status=200)
