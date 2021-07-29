@@ -25,4 +25,4 @@ class Subscription:
         )
 
     def created(self):
-        return SubscriptionCreatedResponse(self._plan_subscription, self._mercadopago_subscription_request.response())
+        return SubscriptionCreatedResponse(self._mercadopago_subscription_request.response())
