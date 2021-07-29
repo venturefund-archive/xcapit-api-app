@@ -1,7 +1,7 @@
 {
   "body": true,
   "scope": true,
-  "emoji": true,
+  "emoji": false,
   "lowercaseTypes": true,
   "initialCommit": {
     "isEnabled": true,
