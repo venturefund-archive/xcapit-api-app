@@ -162,4 +162,3 @@ Smoke test:
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /^\[build\]/
     - when: never
-
