@@ -1,4 +1,4 @@
-from requests import Response, Request
+from requests import Response
 from unittest.mock import Mock
 from abc import abstractmethod, ABC
 from api_app.settings import DEFAULT_REQUEST_TIMEOUT
@@ -11,7 +11,7 @@ class HTTPMethod(ABC):
 
     @abstractmethod
     def fetch(self, *args, **kwargs):
-        pass
+        """"""
 
 
 class PostMethod(HTTPMethod):

@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 class WebhookEvent(ABC):
     @abstractmethod
     def dispatch(self):
-        pass
+        """"""
 
 
 class FakeWebhookEvent(WebhookEvent):
