@@ -79,7 +79,7 @@ def create_plan_subscription(create_user, create_payment_method, plan_saved):
 @pytest.fixture
 def payment_method_to_save():
     return {
-        'name': 'Mercadopago',
+        'name': 'MercadoPago',
         'description': 'payment.methods.arg',
         'payment_link': 'test',
         'provider_plan_id': 'asdfasdkfjker9h8'

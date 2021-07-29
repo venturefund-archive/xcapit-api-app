@@ -6,14 +6,10 @@ from subscription_plans.models import PlanSubscriptionModel
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('plan_id, expected_response', [
-    [1, []],
-    [2, [{'description': 'payment.methods.arg', 'id': 1, 'name': 'Mercadopago'}]]
-])
-def test_get_payment_methods_by_plan(client, plan_id, expected_response, create_payment_method):
+def test_get_payment_methods_by_plan(client, create_payment_method):
     create_payment_method()
-    response = client.get(reverse('subscription_plans:payment_methods_by_plan', kwargs={'plan_id': plan_id}))
-    assert response.json() == expected_response
+    response = client.get(reverse('subscription_plans:payment_methods_by_plan'))
+    assert response.json() == [{'id': 1, 'name': 'MercadoPago', 'description': 'payment.methods.arg', }]
 
 
 @pytest.mark.django_db
