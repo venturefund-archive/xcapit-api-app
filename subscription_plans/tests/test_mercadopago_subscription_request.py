@@ -1,14 +1,12 @@
 import pytest
 from unittest.mock import Mock
-
-from core.http.default_request_params import DefaultRequestParams
-from core.http.empty_request_body import EmptyRequestBody
 from core.http.http_methods import FakeHTTPMethod
-from subscription_plans.mercadopago.mercadopago_headers import DefaultMercadopagoHeaders
-from subscription_plans.mercadopago.mercadopago_subscription_request_body import MercadopagoSubscriptionRequestBody
-from subscription_plans.mercadopago.mercadopago_subscription_request import MercadopagoSubscriptionRequest
+from core.http.empty_request_body import EmptyRequestBody
+from core.http.default_request_params import DefaultRequestParams
 from subscription_plans.mercadopago.mercadopago_url import MercadopagoURL
-from core.http.request_params import RequestParams
+from subscription_plans.mercadopago.mercadopago_headers import DefaultMercadopagoHeaders
+from subscription_plans.mercadopago.mercadopago_subscription_request import MercadopagoSubscriptionRequest
+from subscription_plans.mercadopago.mercadopago_subscription_request_body import MercadopagoSubscriptionRequestBody
 
 
 def test_mercadopago_subscription_request():
@@ -35,7 +33,6 @@ def test_mercadopago_subscription_request_error(mercadopago_subscription_request
     assert sr.response().json() == {'error': 'A sad error message'}
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_mercadopago_subscription_request_search():
     sr = MercadopagoSubscriptionRequest(

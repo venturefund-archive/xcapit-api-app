@@ -1,13 +1,10 @@
-import pytest
 from subscription_plans.sorted_subscriptions import SortedSubscriptions
 
 
-@pytest.mark.wip
 def test_sorted_subscriptions():
     assert SortedSubscriptions([], lambda x: x)
 
 
-@pytest.mark.wip
 def test_sorted_subscriptions_last():
     sorted_subscriptions = SortedSubscriptions(
         [

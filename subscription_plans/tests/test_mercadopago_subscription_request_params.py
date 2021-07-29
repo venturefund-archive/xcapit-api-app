@@ -1,15 +1,12 @@
-import pytest
 from unittest.mock import Mock
 from subscription_plans.payer_email import PayerEmail
 from subscription_plans.mercadopago.mercadopago_subscription_request_params import MercadopagoSubscriptionRequestParams
 
 
-@pytest.mark.wip
 def test_subscription_request_params():
     assert MercadopagoSubscriptionRequestParams(Mock(spec=PayerEmail), status='authorized')
 
 
-@pytest.mark.wip
 def test_subscription_request_params_value():
     params = MercadopagoSubscriptionRequestParams(
         Mock(

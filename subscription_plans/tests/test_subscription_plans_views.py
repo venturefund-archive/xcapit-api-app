@@ -29,7 +29,6 @@ def test_create_a_free_subscription_saves_on_db(client, create_user, plan_saved)
     assert len(PlanSubscriptionModel.objects.all()) == 1
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 @patch('requests.Session.post')
 def test_paid_subscription_link_view(mock_post, client, create_user, plan_saved, create_payment_method):
@@ -45,7 +44,6 @@ def test_paid_subscription_link_view(mock_post, client, create_user, plan_saved,
     assert response.json() == {'link': 'test_link'}
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 @patch('subscription_plans.views.PaymentCreatedEvent')
 def test_mercadopago_webhook_view(mock_payment_event, client, payment_created_webhook_data):

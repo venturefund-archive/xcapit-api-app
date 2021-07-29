@@ -5,12 +5,10 @@ from subscription_plans.models import PlanSubscriptionModel
 from subscription_plans.mercadopago.subscription_created_response import SubscriptionCreatedResponse
 
 
-@pytest.mark.wip
 def test_subscription_created_response():
     assert SubscriptionCreatedResponse(Mock(spec=PlanSubscriptionModel), Mock(spec=Response))
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_subscription_created_response_link(create_plan_subscription):
     subscription_response = SubscriptionCreatedResponse(
