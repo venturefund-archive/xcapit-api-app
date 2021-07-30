@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from datetime import timedelta
+import sentry_sdk
+
 from sentry_sdk.integrations.django import DjangoIntegration
 
 sentry_sdk.init(
