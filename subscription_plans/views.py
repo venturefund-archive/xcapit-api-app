@@ -2,17 +2,19 @@ from datetime import datetime
 from users.models import User
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.response import Response
 from subscription_plans.subscription import Subscription
 from subscription_plans.mercadopago.mercadopago_webhook import MercadopagoWebhook
 from subscription_plans.mercadopago.payment_created_event import PaymentCreatedEvent
 from subscription_plans.models import PlanSubscriptionModel, PlanModel, PaymentMethodModel
+from subscription_plans.serializers import PaymentMethodsSerializer
 
 
-class PaymentMethodsByPlanAPIView(APIView):
-
-    def get(self, request, plan_id):
-        return Response(data=[], status=status.HTTP_200_OK)
+class PaymentMethodsByPlanAPIView(ReadOnlyModelViewSet):
+    queryset = PaymentMethodModel.objects.all().exclude(status='inactive').order_by('status')
+    serializer_class = PaymentMethodsSerializer
+    paginator = None
 
 
 class FreePlanSubscriptionAPIView(APIView):

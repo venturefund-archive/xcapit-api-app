@@ -5,10 +5,11 @@ from unittest.mock import Mock, patch
 from subscription_plans.models import PlanSubscriptionModel
 
 
-def test_get_payment_methods_returns_an_emtpy_array(client):
-    response = client.get(reverse('subscription_plans:payment_methods_by_plan', kwargs={'plan_id': 1}))
-
-    assert response.json() == []
+@pytest.mark.django_db
+def test_get_payment_methods_by_plan(client, create_payment_method):
+    create_payment_method()
+    response = client.get(reverse('subscription_plans:payment_methods_by_plan'))
+    assert response.json() == [{'id': 1, 'name': 'MercadoPago', 'description': 'payment.methods.arg', 'status': 'active'}]
 
 
 @pytest.mark.django_db
