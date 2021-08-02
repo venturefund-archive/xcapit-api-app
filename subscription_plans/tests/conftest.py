@@ -83,7 +83,7 @@ def payment_method_to_save():
         'description': 'payment.methods.arg',
         'payment_link': 'test',
         'provider_plan_id': 'asdfasdkfjker9h8',
-        'status': True
+        'status': 'active'
     }
 
 

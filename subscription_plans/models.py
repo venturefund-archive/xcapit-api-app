@@ -25,6 +25,12 @@ FREQUENCY_TYPE_CHOICES = [
     ('years', 'years'),
 ]
 
+PAYMENT_METHODS_STATUS_CHOICES = [
+    ('active', 'active'),
+    ('soon', 'soon'),
+    ('inactive', 'inactive')
+]
+
 
 class PlanModel(models.Model):
 
@@ -47,7 +53,7 @@ class PaymentMethodModel(models.Model):
     description = models.CharField(max_length=300)
     payment_link = models.CharField(max_length=1000)
     provider_plan_id = models.CharField(max_length=200)
-    status = models.BooleanField(default=False)
+    status = models.CharField(max_length=30, choices=PAYMENT_METHODS_STATUS_CHOICES)
 
 
 class PlanSubscriptionModel(models.Model):
