@@ -4,7 +4,7 @@ from subscription_plans.models import PaymentMethodModel
 
 
 class Command(BaseCommand):
-    help = 'Create a free plan model and payment method mercadopago'
+    help = 'Create a free plan model and payment methods if does not exists'
 
     def add_arguments(self, parser):
         parser.add_argument('--paid_plan_price', type=int, required=True)
@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('🤞Starting'))
         paid_plan_price = options.get('paid_plan_price')
-        free_plan = PlanModel(
+        PlanModel.objects.get_or_create(
             name='Explorer',
             info='payment.licenses.infoExplorer',
             price='payment.licenses.free',
@@ -20,8 +20,8 @@ class Command(BaseCommand):
             frequency=1,
             frequency_type='months'
         )
-        free_plan.save()
-        paid_plan = PlanModel(
+
+        PlanModel.objects.get_or_create(
             name='Advanced',
             info='payment.licenses.infoAdvanced',
             price=paid_plan_price,
@@ -29,9 +29,29 @@ class Command(BaseCommand):
             frequency=1,
             frequency_type='months'
         )
-        paid_plan.save()
-
-        pmm = PaymentMethodModel(name='Mercadopago', description='Argentina')
-        pmm.save()
+        payment_method_models_data = [
+            {
+                'name': 'MercadoPago',
+                'description': 'payment.methods.arg',
+                'status': 'active'
+            },
+            {
+                'name': 'PayPal',
+                'description': 'payment.methods.all_countries',
+                'status': 'soon'
+            },
+            {
+                'name': 'BitPay',
+                'description': 'payment.methods.all_countries',
+                'status': 'soon'
+            },
+            {
+                'name': 'Binance',
+                'description': 'payment.methods.all_countries',
+                'status': 'soon'
+            },
+        ]
+        for data in payment_method_models_data:
+            PaymentMethodModel.objects.get_or_create(**data)
 
         self.stdout.write(self.style.SUCCESS('🥳 Success'))
