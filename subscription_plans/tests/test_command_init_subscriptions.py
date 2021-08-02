@@ -4,7 +4,6 @@ from django.core.management import call_command
 from subscription_plans.models import PlanModel
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_command_init_subscription():
     out = StringIO()
