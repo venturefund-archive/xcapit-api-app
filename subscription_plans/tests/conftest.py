@@ -82,7 +82,8 @@ def payment_method_to_save():
         'name': 'MercadoPago',
         'description': 'payment.methods.arg',
         'payment_link': 'test',
-        'provider_plan_id': 'asdfasdkfjker9h8'
+        'provider_plan_id': 'asdfasdkfjker9h8',
+        'status': True
     }
 
 

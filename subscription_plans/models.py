@@ -47,6 +47,7 @@ class PaymentMethodModel(models.Model):
     description = models.CharField(max_length=300)
     payment_link = models.CharField(max_length=1000)
     provider_plan_id = models.CharField(max_length=200)
+    status = models.BooleanField(default=False)
 
 
 class PlanSubscriptionModel(models.Model):

@@ -12,7 +12,7 @@ from subscription_plans.serializers import PaymentMethodsSerializer
 
 
 class PaymentMethodsByPlanAPIView(ReadOnlyModelViewSet):
-    queryset = PaymentMethodModel.objects.all()
+    queryset = PaymentMethodModel.objects.all().order_by('-status')
     serializer_class = PaymentMethodsSerializer
     paginator = None
 

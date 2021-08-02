@@ -6,4 +6,4 @@ class PaymentMethodsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PaymentMethodModel
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'description', 'status']
