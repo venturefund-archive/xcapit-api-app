@@ -1,24 +1,15 @@
 from django.db import models
 
-
 PLAN_TYPE_CHOICES = [
     ('free', 'free'),
     ('paid', 'paid'),
     ('premium', 'premium'),
 ]
 
-
-PLAN_STATE_CHOICES = [
-    ('payment.licenses.annual', 'payment.licenses.annual'),
-    ('payment.licenses.monthly', 'payment.licenses.monthly'),
-]
-
-
 SUBSCRIPTION_STATUS_CHOICES = [
     ('pending', 'pending'),
     ('authorized', 'authorized'),
 ]
-
 
 FREQUENCY_TYPE_CHOICES = [
     ('months', 'months'),
@@ -33,20 +24,17 @@ PAYMENT_METHODS_STATUS_CHOICES = [
 
 
 class PlanModel(models.Model):
-
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=150)
     info = models.CharField(max_length=300)
     price = models.CharField(max_length=300, blank=True, null=True)
     type = models.CharField(max_length=150, choices=PLAN_TYPE_CHOICES)
-    state = models.CharField(max_length=150, choices=PLAN_STATE_CHOICES, blank=True)
     frequency = models.PositiveIntegerField()
     frequency_type = models.CharField(max_length=100, choices=FREQUENCY_TYPE_CHOICES)
 
 
 class PaymentMethodModel(models.Model):
-
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=150)
@@ -57,7 +45,6 @@ class PaymentMethodModel(models.Model):
 
 
 class PlanSubscriptionModel(models.Model):
-
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
@@ -70,7 +57,6 @@ class PlanSubscriptionModel(models.Model):
 
 
 class PaymentModel(models.Model):
-
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     amount = models.DecimalField(max_digits=30, decimal_places=15)

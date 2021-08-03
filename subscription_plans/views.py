@@ -8,12 +8,18 @@ from subscription_plans.subscription import Subscription
 from subscription_plans.mercadopago.mercadopago_webhook import MercadopagoWebhook
 from subscription_plans.mercadopago.payment_created_event import PaymentCreatedEvent
 from subscription_plans.models import PlanSubscriptionModel, PlanModel, PaymentMethodModel
-from subscription_plans.serializers import PaymentMethodsSerializer
+from subscription_plans.serializers import PaymentMethodsSerializer, PlanModelSerializer
 
 
 class PaymentMethodsByPlanAPIView(ReadOnlyModelViewSet):
     queryset = PaymentMethodModel.objects.all().exclude(status='inactive').order_by('status')
     serializer_class = PaymentMethodsSerializer
+    paginator = None
+
+
+class SubscriptionPlansAPIView(ReadOnlyModelViewSet):
+    queryset = PlanModel.objects.all()
+    serializer_class = PlanModelSerializer
     paginator = None
 
 

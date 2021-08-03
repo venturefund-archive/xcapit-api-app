@@ -27,7 +27,6 @@ def plan_to_save():
         'info': 'an info',
         'price': '10',
         'type': 'free',
-        'state': 'payment.licenses.annual',
         'frequency': 1,
         'frequency_type': 'months',
     }
