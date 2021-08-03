@@ -9,7 +9,8 @@ from subscription_plans.models import PlanSubscriptionModel
 def test_get_payment_methods_by_plan(client, create_payment_method):
     create_payment_method()
     response = client.get(reverse('subscription_plans:payment_methods_by_plan'))
-    assert response.json() == [{'id': 1, 'name': 'MercadoPago', 'description': 'payment.methods.arg', 'status': 'active'}]
+    assert response.json() == [
+        {'id': 1, 'name': 'MercadoPago', 'description': 'payment.methods.arg', 'status': 'active'}]
 
 
 @pytest.mark.django_db
@@ -52,3 +53,11 @@ def test_mercadopago_webhook_view(mock_payment_event, client, payment_created_we
     response = client.post(reverse('subscription_plans:mercadopago_webhook'), data=payment_created_webhook_data)
     assert response.status_code == 200
     mock_payment_event.create.return_value.dispatch.assert_called()
+
+
+@pytest.mark.django_db
+def test_get_subscription_plans(client, plan_saved):
+    response = client.get(reverse('subscription_plans:subscription_plans'))
+    assert response.json() == [
+        {'id': 1, 'name': 'test', 'info': 'an info', 'price': '10', 'type': 'free', 'frequency': 1,
+         'frequency_type': 'months'}]
