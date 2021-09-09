@@ -1,8 +1,9 @@
 {
   "body": true,
   "scope": true,
-  "emoji": true,
+  "emoji": false,
   "lowercaseTypes": true,
+  "addScopeSpace": false,
   "initialCommit": {
     "isEnabled": true,
     "emoji": ":tada:",

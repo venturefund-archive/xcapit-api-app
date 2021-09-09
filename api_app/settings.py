@@ -12,6 +12,17 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from datetime import timedelta
+import sentry_sdk
+
+from sentry_sdk.integrations.django import DjangoIntegration
+
+sentry_sdk.init(
+    dsn="http://"+ os.environ.get("SENTRY_KEY") +"@"+ os.environ.get("SENTRY_HOST"),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True
+)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,6 +55,7 @@ INSTALLED_APPS = [
     'referrals.apps.ReferralsConfig',
     'terms_and_conditions.apps.TermsAndConditionsConfig',
     'administration.apps.AdministrationConfig',
+    'subscription_plans.apps.SubscriptionPlansConfig'
 ]
 
 MIDDLEWARE = [
@@ -203,3 +215,7 @@ LOGGING = {
 CLIENT_ID_1 = os.environ.get('CLIENT_ID_1')
 CLIENT_ID_2 = os.environ.get('CLIENT_ID_2')
 CLIENT_ID_3 = os.environ.get('CLIENT_ID_3')
+
+API_MERCADOPAGO = os.environ.get('API_MERCADOPAGO')
+MERCADOPAGO_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
+DEFAULT_REQUEST_TIMEOUT = int(os.getenv('DEFAULT_REQUEST_TIMEOUT', '10'))
