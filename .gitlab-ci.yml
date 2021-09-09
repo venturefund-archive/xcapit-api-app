@@ -3,40 +3,26 @@ stages:
   - syntax
   - test
   - build
-  - deploy
+  - release
+  - docker-build
   - post-test
 
 image: docker:19.03.1
-
-
-cache:
-  untracked: true
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - ~/.cache/pip/
-
 services:
   - docker:19.03.1-dind
     
 variables:
+  API_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
   CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
+  CI_RUNNER_REPO: registry.gitlab.com/xcapit/infra/ci-runner
+  CI_RUNNER_TAG: v1.0.0
+  HADOLINT_REPO: hadolint/hadolint
+  HADOLINT_TAG: v2.0.0-alpine
+  PYTHON_VERSION: "3.8"
   SRC_DIR: "."  # Indicar aqui donde esta el src code, puede ser indicado en las vars de gitlab
-
-###########################################################################
-###########################################################################
-### Core Workflow
-# # * si el commit msg comienza con [skip tests] salta los tests
-# # * si el commit msg comienza con [skip smoke-test] salta el smoke-test
-workflow:
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /^\[skip tests\]/ 
-      when: never
-    - if: $CI_COMMIT_MESSAGE =~ /^\[skip smoke-test\]/
-      when: never
-    - when: always
-
+  
 ###########################################################################
 ###########################################################################
 ### Templates
@@ -46,7 +32,7 @@ workflow:
   stage: syntax
   tags:
     - coreinfra
-  image: python:3.8
+  image: python:${PYTHON_VERSION}
   cache:
     untracked: true
     key: ${CI_COMMIT_REF_SLUG}
@@ -60,22 +46,10 @@ workflow:
     - python -m py_compile *.py
   allow_failure: true
 
-### Build
-.build-branch: &build-branch
-  stage: build
-  tags:
-    - coreinfra
-  before_script:
-    - cd ${SRC_DIR}
-  script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker build --tag $CONTAINER_IMAGE:$CI_COMMIT_REF_NAME .
-    - docker push $CONTAINER_IMAGE:$CI_COMMIT_REF_NAME
-
 ### Django pytest
 .django-pytest: &django-pytest
   stage: test
-  image: python:3.8
+  image: python:${PYTHON_VERSION}
   services:
     - name: postgres:12.0
       alias: postgres-api-app
@@ -85,23 +59,7 @@ workflow:
     paths:
       - ~/.cache/pip/
   tags:
-    - coreinfra
-  variables:
-    DEBUG: "1"
-    SECRET: "e6c8dc8402dc3a1b3ca85304d88622835a80c75dc60cf4a88e5181c556d810f0"
-    POSTGRES_USER: "postgres"
-    POSTGRES_DB: "api_app_db"
-    POSTGRES_PASSWORD: "xcap123"
-    POSTGRES_HOST: "postgres-api-app"
-    POSTGRES_PORT: "5432"
-    DJANGO_LOG_LEVEL: "INFO"
-    DATA_SOURCE_URI: "postgres-api-app:5432/api_app_db?sslmode=disable"
-    DATA_SOURCE_USER: "postgres"
-    DATA_SOURCE_PASS: "xcap123"
-    PG_EXPORTER_AUTO_DISCOVER_DATABASES: "true"
-    API_NOTIFICATIONS: "http://wrapperbotadmin:9051/v1/api/"
-    PWA_DOMAIN: "https://preprod.xcapit.com"
-
+    - coreinfra    
   before_script:
     - cd ${SRC_DIR}
     - python -V
@@ -119,94 +77,84 @@ workflow:
       alias: postgres-api-app
   tags:
     - coreinfra
-  variables:
-    DEBUG: "1"
-    SECRET: "e6c8dc8402dc3a1b3ca85304d88622835a80c75dc60cf4a88e5181c556d810f0"
-    POSTGRES_USER: "postgres"
-    POSTGRES_DB: "api_app_db"
-    POSTGRES_PASSWORD: "xcap123"
-    POSTGRES_HOST: "postgres-api-app"
-    POSTGRES_PORT: "5432"
-    DJANGO_LOG_LEVEL: "INFO"
-    DATA_SOURCE_URI: "postgres-api-app:5432/api_app_db?sslmode=disable"
-    DATA_SOURCE_USER: "postgres"
-    DATA_SOURCE_PASS: "xcap123"
-    PG_EXPORTER_AUTO_DISCOVER_DATABASES: "true"
-    API_NOTIFICATIONS: "http://wrapperbotadmin:9051/v1/api/"
-    PWA_DOMAIN: "https://preprod.xcapit.com"
-
+  
   script:
     - python ${SRC_DIR}/manage.py test
 
+### Docker lint
+.docker-lint: &docker-lint
+  stage: syntax
+  image: "${HADOLINT_REPO}:${HADOLINT_TAG}"
+  before_script:
+    - hadolint --version
+    - cd ${SRC_DIR}
+  tags:
+    - coreinfra
+  script:
+    - hadolint --ignore DL3018 --ignore DL3006 --ignore DL3003 --ignore DL3013 --ignore DL3007 --ignore DL3002 --ignore DL3008 --ignore DL3042 Dockerfile
+
+### Semantic release
+.semantic-release: &semantic-release
+  stage: release
+  image: "${CI_RUNNER_REPO}:${CI_RUNNER_TAG}"
+  tags:
+    - coreinfra
 
 ###########################################################################
 ###########################################################################
 ### Stages
 
+# # Test
+Docker Lint:
+  <<: *docker-lint
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
+
 ### Syntax check
 Syntax checking:
   <<: *syntax-check
   rules:
-    - if: $CI_MERGE_REQUEST_IID
-    - if: $CI_COMMIT_TAG
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
 
 ### pytest
 Django pytest:
   <<: *django-pytest
   rules:
-    - if: $CI_MERGE_REQUEST_IID
-    - if: $CI_COMMIT_TAG
-    - when: never
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
 
-Django pytest manual:
-  <<: *django-pytest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-    - when: never
-
-Django pytest push:
-  <<: *django-pytest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-    - when: never
-    
 ### Build
-Build from Tag:
-  stage: build
+Build docker image:
+  stage: docker-build
   tags:
     - coreinfra
-    
+  before_script:
+    - cd ${SRC_DIR}
   script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker build --tag $CONTAINER_IMAGE:$CI_COMMIT_TAG .
-    - docker push $CONTAINER_IMAGE:$CI_COMMIT_TAG
+    - docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   only:
     - tags
 
-Build:
-  <<: *build-branch
-  rules:
-    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
+# # Release
+Release Master:
+  <<: *semantic-release
+  only:
+    refs:
+    - master
+  script:
+    - npx semantic-release -p "@semantic-release/commit-analyzer" "@semantic-release/changelog" "@semantic-release/git" 
 
-Build Manual:
-  <<: *build-branch
-  rules:
-    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-    - when: never
-
-Build Manual MR:
-  <<: *build-branch
-  rules:
-    - if: $CI_COMMIT_REF_PROTECTED
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      when: never
+Release Develop:
+  <<: *semantic-release
+  only:
+    refs:
+    - develop
+  script:
+    - npx semantic-release --tag-format ${CI_COMMIT_BRANCH}-\${version} -p "@semantic-release/commit-analyzer" "@semantic-release/changelog" "@semantic-release/git" 
 
 ### Smoke test sobre la imagen recien creada
 Smoke test:
@@ -214,10 +162,3 @@ Smoke test:
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /^\[build\]/
     - when: never
-
-Smoke test manual:
-  <<: *django-smoke-test
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-    - when: never
-    
