@@ -1,8 +1,8 @@
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from .models import Profile
-from .serializers import ProfileSerializer
+from profiles.models import Profile
+from profiles.serializers import ProfileSerializer
 from users.test_utils import create_user
 
 personal_data_keys = ['first_name']

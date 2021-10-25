@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -111,3 +112,10 @@ class BillDataAPIView(APIView):
 
         return Response(True, status.HTTP_200_OK)
 
+
+class LanguageView(APIView):
+    def put(self, request, user_id):
+        profile = get_object_or_404(Profile, user__id=user_id)
+        profile.lang = request.data.get('language')
+        profile.save()
+        return Response({}, status=status.HTTP_200_OK)
