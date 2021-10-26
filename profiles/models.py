@@ -1,5 +1,10 @@
 from django.db import models
 
+LANGUAGES = [
+    ('es', 'es'),
+    ('en', 'en')
+]
+
 
 class Profile(models.Model):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE)
@@ -23,8 +28,10 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     pais = models.CharField(max_length=150, blank=True)
+
+    lang = models.CharField(max_length=30, choices=LANGUAGES, default='es')
 
     def __str__(self):
         return self.user.email
