@@ -12,16 +12,16 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from datetime import timedelta
-import sentry_sdk
+# import sentry_sdk
+#
+# from sentry_sdk.integrations.django import DjangoIntegration
 
-from sentry_sdk.integrations.django import DjangoIntegration
-
-sentry_sdk.init(
-    dsn="http://"+ os.environ.get("SENTRY_KEY") +"@"+ os.environ.get("SENTRY_HOST"),
-    integrations=[DjangoIntegration()],
-    traces_sample_rate=1.0,
-    send_default_pii=True
-)
+# sentry_sdk.init(
+#     dsn="http://"+ os.environ.get("SENTRY_KEY") +"@"+ os.environ.get("SENTRY_HOST"),
+#     integrations=[DjangoIntegration()],
+#     traces_sample_rate=1.0,
+#     send_default_pii=True
+# )
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'referrals.apps.ReferralsConfig',
     'terms_and_conditions.apps.TermsAndConditionsConfig',
     'administration.apps.AdministrationConfig',
-    'subscription_plans.apps.SubscriptionPlansConfig'
+    'subscription_plans.apps.SubscriptionPlansConfig',
+    'wallets.apps.WalletsConfig'
 ]
 
 MIDDLEWARE = [

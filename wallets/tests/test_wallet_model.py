@@ -1,12 +1,6 @@
 import pytest
-from users.models import User
 from wallets.models import Wallet
 from django.db import IntegrityError
-
-
-@pytest.fixture
-def user_mock():
-    return User.objects.create_user(email='test', password='TestPass123')
 
 
 @pytest.mark.django_db
