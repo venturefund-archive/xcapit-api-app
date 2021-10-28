@@ -13,7 +13,6 @@ def wallets_data():
     ]
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_wallet_view(client, user_mock, wallets_data):
     response = client.post(
