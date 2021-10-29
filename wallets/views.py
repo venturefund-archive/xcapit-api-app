@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from wallets.serializers import WalletSerializer
+from wallets.serializers import WalletSerializer, NFTRequestSerializer
 
 
 class WalletsView(APIView):
@@ -14,6 +14,19 @@ class WalletsView(APIView):
     def post(self, request, user_id):
         data = list(map(lambda item: self._add_user(item, user_id), request.data))
         serializer = self.serializer_class(data=data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            response = Response({}, status=200)
+        else:
+            response = Response(serializer.errors, status=400)
+        return response
+
+
+class CreateNFTRequestView(APIView):
+    serializer_class = NFTRequestSerializer
+
+    def post(self, request, user_id):
+        serializer = self.serializer_class(data={'user': user_id})
         if serializer.is_valid():
             serializer.save()
             response = Response({}, status=200)
