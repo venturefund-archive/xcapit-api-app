@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'referrals.apps.ReferralsConfig',
     'terms_and_conditions.apps.TermsAndConditionsConfig',
     'administration.apps.AdministrationConfig',
-    'subscription_plans.apps.SubscriptionPlansConfig'
+    'subscription_plans.apps.SubscriptionPlansConfig',
+    'wallets.apps.WalletsConfig'
 ]
 
 MIDDLEWARE = [
