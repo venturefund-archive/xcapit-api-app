@@ -8,7 +8,7 @@ NFT_STATUS = [
 
 
 class Wallet(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wallets')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='wallets')
     created = models.DateTimeField(auto_now_add=True)
     network = models.CharField(max_length=150)
     address = models.CharField(max_length=200)

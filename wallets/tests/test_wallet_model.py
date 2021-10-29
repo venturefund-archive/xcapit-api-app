@@ -16,4 +16,4 @@ def test_wallet_model_unique(user_mock):
     with pytest.raises(IntegrityError) as e:
         Wallet.objects.create(user=user_mock, network='ERC20', address='test_address')
         Wallet.objects.create(user=user_mock, network='ERC20', address='test_address')
-        assert e
+    assert e
