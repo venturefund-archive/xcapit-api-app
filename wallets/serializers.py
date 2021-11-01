@@ -1,7 +1,7 @@
-from rest_framework import serializers
-
 from users.models import User
+from rest_framework import serializers
 from wallets.models import Wallet, NFTRequest
+from rest_framework.serializers import ModelSerializer
 
 
 class WalletSerializer(serializers.Serializer):
@@ -16,11 +16,7 @@ class WalletSerializer(serializers.Serializer):
         """"""
 
 
-class NFTRequestSerializer(serializers.Serializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    def create(self, validated_data):
-        return NFTRequest.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        """"""
+class NFTRequestSerializer(ModelSerializer):
+    class Meta:
+        model = NFTRequest
+        fields = ['user']
