@@ -4,7 +4,7 @@ from django.test import TestCase, tag
 from users.test_utils import get_credentials, create_user
 from django.urls import reverse
 from rest_framework import status
-from .models import Referral
+from referrals.models import Referral
 import pytest
 
 test_data = {
