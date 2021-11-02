@@ -26,3 +26,14 @@ def test_create_nft_request_view_non_existing_user(client, user_mock):
     )
     assert response.status_code == 400
     assert response.json()['user'] == [f'Invalid pk "{non_existing_user_id}" - object does not exist.']
+
+
+@pytest.mark.django_db
+def test_nft_status_view(client, user_mock, nft_request_mock):
+    nft_request_mock(user_mock)
+    response = client.get(reverse('wallets:nft-status', kwargs={'user_id': user_mock.id}))
+    assert response.status_code == 200
+    response = response.json()
+    assert response['user'] == user_mock.id
+    assert response['status'] == 'claimed'
+    assert response['claimed_at']

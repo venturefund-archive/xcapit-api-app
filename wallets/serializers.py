@@ -19,4 +19,4 @@ class WalletSerializer(serializers.Serializer):
 class NFTRequestSerializer(ModelSerializer):
     class Meta:
         model = NFTRequest
-        fields = ['user']
+        fields = '__all__'
