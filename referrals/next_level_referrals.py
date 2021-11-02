@@ -16,16 +16,16 @@ class NextLevelReferrals:
 
     @cache
     def all(self):
-        # Filtrar por accepted = True
         return pd.read_sql(
-            'select '
-            'u.referral_id as referred_id, '
-            'u.id as user_id, '
+            'SELECT '
+            'u.referral_id AS referred_id, '
+            'u.id AS user_id, '
             'r.referral_id, '
-            '(select count(w.id) > 0 from wallets_wallet w where w.user_id=u.id) as wallet_created '
-            'from referrals_referral r '
-            'inner join users_user u on u.email = r.email '
-            f'where r.referral_id {self._in_param()}',
+            '(SELECT COUNT(w.id) > 0 FROM wallets_wallet w WHERE w.user_id=u.id) AS wallet_created '
+            'FROM referrals_referral r '
+            'INNER join users_user u ON u.email = r.email '
+            f'WHERE r.accepted = true AND r.referral_id {self._in_param()}',
             con=connection,
             index_col='user_id'
         ).astype({'wallet_created': bool})
+

@@ -15,10 +15,11 @@ def users_for_referrals_case_1():
         {'email': 'for_4@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_4'},
         {'email': 'sor_11@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_11'},
         {'email': 'sor_12@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_12'},
-        {'email': 'sor_13@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_13'},
-        {'email': 'sor_31@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_31'},
-        {'email': 'sor_32@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_32'},
-        {'email': 'sor_33@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_33'},
+        {'email': 'sor_13@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_13'},
+        {'email': 'sor_31@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_31'},
+        {'email': 'sor_32@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_32'},
+        {'email': 'sor_33@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_33'},
+        {'email': 'sor_34@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_sor_34'},
     ]
 
 
@@ -49,6 +50,7 @@ def referrals_for_case_1():
         {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_31@test.com'},
         {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_32@test.com'},
         {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_33@test.com'},
+        {'accepted': False, 'referral_id': 'rid_for_3', 'email': 'sor_34@test.com'},
     ]
 
 
@@ -85,9 +87,17 @@ def expected_first_level():
 def expected_second_level():
     return pd.DataFrame(
         data={
-            'referred_id': ['rid_sor_11', 'rid_sor_12', 'rid_for_13', 'rid_for_31', 'rid_for_32', 'rid_for_33'],
+            'referred_id': ['rid_sor_11', 'rid_sor_12', 'rid_sor_13', 'rid_sor_31', 'rid_sor_32', 'rid_sor_33'],
             'referral_id': ['rid_for_1', 'rid_for_1', 'rid_for_1', 'rid_for_3', 'rid_for_3', 'rid_for_3'],
             'wallet_created': [True, False, True, True, False, False],
             'user_id': [6, 7, 8, 9, 10, 11]
         }
     ).set_index('user_id')
+
+
+@pytest.fixture
+def expected_user_referrals():
+    return {"first_order_with_wallet": 2,
+            "first_order_without_wallet": 2,
+            "second_order_with_wallet": 3,
+            "second_order_without_wallet": 3}

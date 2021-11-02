@@ -9,7 +9,9 @@
 #         - sor_31 (wallets)
 #         - sor_32
 #         - sor_33
+#         - sor_34 (not accepted)
 #     - for_4 (wallets)
+
 
 import pytest
 import pandas as pd
@@ -17,7 +19,6 @@ from users.models import User
 from referrals.next_level_referrals import NextLevelReferrals
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_first_and_second_level_referrals(
         set_fixtures_referrals_case_1,
