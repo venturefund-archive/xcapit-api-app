@@ -1,7 +1,7 @@
-from rest_framework import serializers
-
 from users.models import User
-from wallets.models import Wallet
+from rest_framework import serializers
+from wallets.models import Wallet, NFTRequest
+from rest_framework.serializers import ModelSerializer
 
 
 class WalletSerializer(serializers.Serializer):
@@ -14,3 +14,9 @@ class WalletSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         """"""
+
+
+class NFTRequestSerializer(ModelSerializer):
+    class Meta:
+        model = NFTRequest
+        fields = '__all__'
