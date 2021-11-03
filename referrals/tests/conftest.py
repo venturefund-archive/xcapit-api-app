@@ -97,7 +97,7 @@ def expected_second_level():
 
 @pytest.fixture
 def expected_user_referrals():
-    return {"first_order_with_wallet": 2,
-            "first_order_without_wallet": 2,
-            "second_order_with_wallet": 3,
-            "second_order_without_wallet": 3}
+    return {
+        "first_order": {"with_wallet": 2, "without_wallet": 2, "reward": 1},
+        "second_order": {"with_wallet": 3, "without_wallet": 3, "reward": 0.5}
+    }
