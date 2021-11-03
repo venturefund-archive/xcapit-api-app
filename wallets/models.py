@@ -14,7 +14,7 @@ class Wallet(models.Model):
     address = models.CharField(max_length=200)
 
     class Meta:
-        unique_together = ('user', 'network', 'address')
+        unique_together = ('user', 'network')
         ordering = ['user', 'created']
         verbose_name_plural = 'Wallets'
         verbose_name = 'Wallet'
