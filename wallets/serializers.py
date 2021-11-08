@@ -10,10 +10,11 @@ class WalletSerializer(serializers.Serializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def create(self, validated_data):
-        address = validated_data.pop('address')
-        wallet, created = Wallet.objects.update_or_create(**validated_data)
-        wallet.address = address
-        wallet.save()
+        Wallet.objects.update_or_create(
+            user_id=validated_data['user'].id,
+            network=validated_data.pop('network'),
+            defaults=validated_data
+        )
 
     def update(self, instance, validated_data):
         """"""
