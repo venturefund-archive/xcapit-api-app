@@ -14,8 +14,10 @@ class NextLevelReferrals:
     def _in_param(self):
         return f'in {tuple(self._referrals_id)}' if self._multiple_referrals() else f"='{self._referrals_id[0]}'"
 
-    @cache
-    def all(self):
+    def _referrals_exists(self):
+        return bool(len(self._referrals_id))
+
+    def _db_referrals(self):
         return pd.read_sql(
             'SELECT '
             'u.referral_id AS referred_id, '
@@ -29,3 +31,12 @@ class NextLevelReferrals:
             index_col='user_id'
         ).astype({'wallet_created': bool})
 
+    @staticmethod
+    def _empty_dataframe():
+        return pd.DataFrame(
+            columns=['referred_id', 'user_id', 'referral_id', 'wallet_created']
+        ).set_index('user_id')
+
+    @cache
+    def all(self):
+        return self._db_referrals() if self._referrals_exists() else self._empty_dataframe()
