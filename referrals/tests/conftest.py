@@ -101,7 +101,12 @@ def set_referrals_fixtures():
 
 
 @pytest.fixture
-def set_fixtures_referrals_case_1(users_for_referrals_case_1, wallets_for_referrals_case_1, referrals_for_case_1):
+def set_fixtures_referrals_case_1(
+        set_referrals_fixtures,
+        users_for_referrals_case_1,
+        wallets_for_referrals_case_1,
+        referrals_for_case_1
+):
     def sfr_case_1():
         return set_referrals_fixtures(
             users_for_referrals_case_1,
