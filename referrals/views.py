@@ -11,6 +11,10 @@ from .models import Referral
 from core.paginations import CustomCursorPaginationAPU
 from core.helpers import ResponseHelper
 from users.models import User
+from django.shortcuts import get_object_or_404
+
+from .user_referrals import UserReferrals
+
 add_error_code = ResponseHelper.add_error_code
 
 
@@ -68,3 +72,11 @@ class ReferralsCountView(APIView):
             referral_id=user.referral_id).count()
 
         return Response({'referrals_count': referrals_count}, status=status.HTTP_200_OK)
+
+
+class UserReferralsCountView(APIView):
+
+    def get(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        user_referrals_count = UserReferrals(user).to_dict()
+        return Response(user_referrals_count, status.HTTP_200_OK)
