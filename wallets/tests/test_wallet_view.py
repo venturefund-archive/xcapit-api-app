@@ -67,3 +67,24 @@ def test_wallet_view_invalid_data(client, user_mock, wallets_data):
         content_type='application/json'
     )
     assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_claimed_nft_users_case_one(client, wallet_and_nft_case_one, expected_claimed_users_case_one):
+    response = client.get(reverse('wallets:users-who-claimed-nft'))
+    assert response.json() == expected_claimed_users_case_one
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_claimed_nft_users_case_two(client, wallet_and_nft_case_two, expected_claimed_users_case_two):
+    response = client.get(reverse('wallets:users-who-claimed-nft'))
+    assert response.json() == expected_claimed_users_case_two
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_claimed_nft_users_case_no_claims(client, wallet_and_nft_case_no_claims, expected_claimed_users_case_no_claims):
+    response = client.get(reverse('wallets:users-who-claimed-nft'))
+    assert response.json() == expected_claimed_users_case_no_claims
+    assert response.status_code == 200
