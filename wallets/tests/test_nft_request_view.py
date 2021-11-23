@@ -37,3 +37,20 @@ def test_nft_status_view(client, user_mock, nft_request_mock):
     assert response['user'] == user_mock.id
     assert response['status'] == 'claimed'
     assert response['claimed_at']
+
+
+@pytest.mark.django_db
+def test_update_nft_request(client, user_mock, nft_request_mock):
+    nft_request_mock(user_mock)
+    assert NFTRequest.objects.get(user__id=user_mock.id).status == 'claimed'
+    url = reverse('wallets:create-nft-request', kwargs={'user_id': user_mock.id})
+    response = client.put(url, data={'status': 'delivered'}, content_type='application/json')
+    assert response.status_code == 200
+    assert NFTRequest.objects.get(user__id=user_mock.id).status == 'delivered'
+
+
+@pytest.mark.django_db
+def test_update_nft_request_user_doesnt_exist(client):
+    url = reverse('wallets:create-nft-request', kwargs={'user_id': 45})
+    response = client.put(url, data={'status': 'delivered'}, content_type='application/json')
+    assert response.status_code == 404
