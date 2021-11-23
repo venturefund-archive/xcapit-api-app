@@ -50,13 +50,11 @@ class NFTStatusView(APIView):
 class ClaimedNFTUsersView(APIView):
 
     def get(self, request):
-        user_ids = NFTRequest.objects.select_related('user').filter(status="claimed").values_list('user_id', flat=True)
-        wallets = Wallet.objects.select_related('user').filter(network='MATIC').values_list('user_id',
-                                                                                            'user__email',
-                                                                                            'address')
-
-        claimed_users = [{"id": user_id, "email": email, "address": address}
-                         for user_id, email, address in wallets
-                         if user_id in user_ids]
-
+        users = User.objects.filter(
+            wallets__network='MATIC', nft__status='claimed'
+        ).values('id', 'email', 'wallets__address')
+        claimed_users = [{"id": user.get('id'),
+                          "email": user.get('email'),
+                          "address": user.get('wallets__address')}
+                         for user in users]
         return Response(claimed_users, status=200)
