@@ -37,6 +37,12 @@ class CreateNFTRequestView(APIView):
             response = Response(serializer.errors, status=400)
         return response
 
+    def put(self, request, user_id):
+        nft_request = get_object_or_404(NFTRequest, user__id=user_id)
+        nft_request.status = request.data.get('status')
+        nft_request.save()
+        return Response({}, status=200)
+
 
 class NFTStatusView(APIView):
     serializer_class = NFTRequestSerializer
