@@ -2,7 +2,7 @@
 
 # Xcapit Auth Service
 
-Xcapit Auth Service is a rest api that offers
+Xcapit Auth Service is a rest api that manage all user related data. 
 
 ## Getting Started
 
@@ -26,14 +26,14 @@ docker-compose up -d
 ### Creating a database
 
 ```sh
-docker-compose exec postgres-api-app psql -U postgres
-CREATE DATABASE mydb
+docker-compose exec <YOUR_HOST_HERE> psql -U <YOUR_USER_HERE>
+CREATE DATABASE <YOUR_DB_NAME_HERE>
 ```
 
 ### Making db migrations
 
 ```sh
-docker-compose exec api-app python manage.py makemigrations administration profiles referrals stats terms_and_conditions users
+docker-compose exec api-app python manage.py makemigrations 
 docker-compose exec api-app python manage.py migrate
 ```
 
@@ -43,8 +43,8 @@ Now in http://localhost:9070/ you can see the api.
 
 To run the tests:
 
-```
- docker-compose exec api-app pytest
+```sh
+docker-compose exec api-app pytest
 ```
 
 <h2 id="configuration">Configuration</h2>
@@ -64,21 +64,15 @@ SECRET=<YOUR_SECRET_HERE>
 POSTGRES_USER=<YOUR_USER_HERE>
 POSTGRES_DB=<YOUR_DB_NAME_HERE>
 POSTGRES_PASSWORD=<YOUR_PASS_HERE>
-POSTGRES_HOST=postgres-api-app
-POSTGRES_PORT=5432
+POSTGRES_HOST=<YOUR_HOST_HERE>
+POSTGRES_PORT=<YOUR_PORT_HERE>
 DJANGO_LOG_LEVEL=INFO
-
-# Postgres Exporter
-DATA_SOURCE_URI=postgres-api-app:5432/mydb?sslmode=disable
-DATA_SOURCE_USER=<YOUR_USER_HERE>
-DATA_SOURCE_PASS=<YOUR_PASS_HERE>
-PG_EXPORTER_AUTO_DISCOVER_DATABASES=true
 
 # APIs
 API_NOTIFICATIONS=http://localhost:9051/v1/api/
 
 # OTHERS
-PWA_DOMAIN=https://nonprod.xcapit.com
+PWA_DOMAIN=http://localhost:8100/
 
 # Firebase clients
 CLIENT_ID_1=<YOUR_FIREBASE_CLIENT_ID_1_HERE>
@@ -104,7 +98,7 @@ services:
       - .:/code
     command: python3 manage.py runserver 9070
     ports:
-      - 9070:8000
+      - 9070:9070
     env_file:
       - ./variables.env
 
@@ -116,14 +110,6 @@ services:
       - 5435:5432
     env_file:
       - ./variables.env
-```
-
-## Docker
-
-You can run Xcapit Api App with [Docker](https://www.docker.com/) by running the following commands.
-
-```sh
-docker-compose up -d
 ```
 
 ## Related Services
