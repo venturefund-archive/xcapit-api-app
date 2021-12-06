@@ -22,3 +22,14 @@ def test_referral_count_of_value_without_wallet(set_fixtures_referrals_case_1):
     first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
     referrals = NextLevelReferrals(list(first_level.all().referred_id))
     assert ReferralCountOf(referrals, False).value() == 3
+
+
+@pytest.mark.django_db
+def test_referral_count_of_value_with_wallet_case_2(set_fixtures_referrals_case_2):
+    set_fixtures_referrals_case_2()
+    first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
+    second_level = NextLevelReferrals(list(first_level.all().referred_id))
+    assert ReferralCountOf(first_level, True).value() == 1
+    assert ReferralCountOf(second_level, True).value() == 0
+    assert ReferralCountOf(first_level, False).value() == 0
+    assert ReferralCountOf(second_level, False).value() == 0

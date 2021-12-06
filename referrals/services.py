@@ -1,18 +1,20 @@
+from users.models import User
 from .models import Referral
 
 
 def referral_update(referral_code, email):
-    if referral_code and email:
+    normalized_email = User.objects.normalize_email(email)
+    if referral_code and normalized_email:
         try:
-            referral = Referral.objects.get(email=email,
+            referral = Referral.objects.get(email=normalized_email,
                                             referral_id=referral_code)
             referral.save()
         except Referral.DoesNotExist:
-            # en caso de no existir, se debe crear
             Referral.objects.create(
                 referral_id=referral_code,
-                email=email,
+                email=normalized_email,
             )
+
 
 def validate_referral(referral_code, email):
     referral = Referral.objects.get(email=email,

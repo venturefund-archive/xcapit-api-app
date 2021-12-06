@@ -6,6 +6,23 @@ from referrals.models import Referral
 
 
 @pytest.fixture
+def set_referrals_fixtures():
+    def srf(users, wallets, referrals):
+        for user in users:
+            rid = user.pop('referral_id')
+            user = User.objects.create_user(**user)
+            user.referral_id = rid
+            user.save()
+        for user_wallets in wallets:
+            for user_wallet in user_wallets:
+                Wallet.objects.create(**user_wallet)
+        for referral in referrals:
+            Referral.objects.create(**referral)
+
+    return srf
+
+
+@pytest.fixture
 def users_for_referrals_case_1():
     return [
         {'email': 'user@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_user'},
@@ -24,35 +41,19 @@ def users_for_referrals_case_1():
 
 
 @pytest.fixture
+def users_for_referrals_case_2():
+    return [
+        {'email': 'bhai.them.756m@bookeg.site', 'password': 'TestPass1234', 'referral_id': 'avVYfJ'},
+        {'email': 'gamin_myhero.009a@oanghika.com', 'password': 'TestPass1234', 'referral_id': 'e262s9'},
+    ]
+
+
+@pytest.fixture
 def users_for_referrals_case_zero_second_level():
     return [
         {'email': 'user@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_user'},
         {'email': 'for_1@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_1'},
         {'email': 'for_2@test.com', 'password': 'TestPass1234', 'referral_id': 'rid_for_2'},
-    ]
-
-
-@pytest.fixture
-def wallets_for_referrals_case_1():
-    return [
-        [
-            {'user_id': user_id, 'network': 'MATIC', 'address': 'test_matic_address'},
-            {'user_id': user_id, 'network': 'RSK', 'address': 'test_rsk_address'},
-            {'user_id': user_id, 'network': 'ERC20', 'address': 'test_erc20_address'},
-        ]
-        for user_id in ['1', '2', '5', '6', '8', '9']
-    ]
-
-
-@pytest.fixture
-def wallets_for_referrals_case_zero_second_level():
-    return [
-        [
-            {'user_id': user_id, 'network': 'MATIC', 'address': 'test_matic_address'},
-            {'user_id': user_id, 'network': 'RSK', 'address': 'test_rsk_address'},
-            {'user_id': user_id, 'network': 'ERC20', 'address': 'test_erc20_address'},
-        ]
-        for user_id in ['1', '2']
     ]
 
 
@@ -76,6 +77,11 @@ def referrals_for_case_1():
 
 
 @pytest.fixture
+def referrals_for_case_2():
+    return [{'accepted': True, 'referral_id': 'avVYfJ', 'email': 'gamin_myhero.009a@oanghika.com'}]
+
+
+@pytest.fixture
 def referrals_for_case_zero_second_level():
     return [
         {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_1@test.com'},
@@ -84,20 +90,39 @@ def referrals_for_case_zero_second_level():
 
 
 @pytest.fixture
-def set_referrals_fixtures():
-    def srf(users, wallets, referrals):
-        for user in users:
-            rid = user.pop('referral_id')
-            user = User.objects.create_user(**user)
-            user.referral_id = rid
-            user.save()
-        for user_wallets in wallets:
-            for user_wallet in user_wallets:
-                Wallet.objects.create(**user_wallet)
-        for referral in referrals:
-            Referral.objects.create(**referral)
+def wallets_for_referrals_case_1():
+    return [
+        [
+            {'user_id': user_id, 'network': 'MATIC', 'address': 'test_matic_address'},
+            {'user_id': user_id, 'network': 'RSK', 'address': 'test_rsk_address'},
+            {'user_id': user_id, 'network': 'ERC20', 'address': 'test_erc20_address'},
+        ]
+        for user_id in ['1', '2', '5', '6', '8', '9']
+    ]
 
-    return srf
+
+@pytest.fixture
+def wallets_for_referrals_case_2():
+    return [
+        [
+            {'user_id': user_id, 'network': 'MATIC', 'address': 'test_matic_address'},
+            {'user_id': user_id, 'network': 'RSK', 'address': 'test_rsk_address'},
+            {'user_id': user_id, 'network': 'ERC20', 'address': 'test_erc20_address'},
+        ]
+        for user_id in ['1', '2']
+    ]
+
+
+@pytest.fixture
+def wallets_for_referrals_case_zero_second_level():
+    return [
+        [
+            {'user_id': user_id, 'network': 'MATIC', 'address': 'test_matic_address'},
+            {'user_id': user_id, 'network': 'RSK', 'address': 'test_rsk_address'},
+            {'user_id': user_id, 'network': 'ERC20', 'address': 'test_erc20_address'},
+        ]
+        for user_id in ['1', '2']
+    ]
 
 
 @pytest.fixture
@@ -115,6 +140,23 @@ def set_fixtures_referrals_case_1(
         )
 
     return sfr_case_1
+
+
+@pytest.fixture
+def set_fixtures_referrals_case_2(
+        set_referrals_fixtures,
+        users_for_referrals_case_2,
+        wallets_for_referrals_case_2,
+        referrals_for_case_2
+):
+    def sfr_case_2():
+        return set_referrals_fixtures(
+            users_for_referrals_case_2,
+            wallets_for_referrals_case_2,
+            referrals_for_case_2
+        )
+
+    return sfr_case_2
 
 
 @pytest.fixture
@@ -185,6 +227,14 @@ def expected_user_referrals():
     return {
         "first_order": {"with_wallet": 2, "without_wallet": 2, "reward": 1},
         "second_order": {"with_wallet": 3, "without_wallet": 3, "reward": 0.5}
+    }
+
+
+@pytest.fixture
+def expected_user_referrals_case_2():
+    return {
+        "first_order": {"with_wallet": 1, "without_wallet": 0, "reward": 1},
+        "second_order": {"with_wallet": 0, "without_wallet": 0, "reward": 0.5}
     }
 
 
