@@ -67,3 +67,31 @@ def test_wallet_view_invalid_data(client, user_mock, wallets_data):
         content_type='application/json'
     )
     assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_claimed_nft_users_case_all_users_claimed_the_nft(
+        client, wallet_and_nft_case_all_users_have_wallet_and_already_claimed_nft,
+        expected_claimed_users_case_all_users_have_wallet_and_already_claimed_nft):
+    response = client.get(reverse('wallets:users-who-claimed-nft'))
+
+    assert response.json() == expected_claimed_users_case_all_users_have_wallet_and_already_claimed_nft
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_claimed_nft_users_case_some_users_claimed_the_nft(
+        client, wallet_and_nft_case_some_users_have_wallet_and_already_claimed_nft,
+        expected_claimed_users_case_some_users_have_wallet_and_already_claimed_nft):
+    response = client.get(reverse('wallets:users-who-claimed-nft'))
+
+    assert response.json() == expected_claimed_users_case_some_users_have_wallet_and_already_claimed_nft
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_claimed_nft_users_case_no_claims(client, wallet_and_nft_case_no_claims, expected_claimed_users_case_no_claims):
+    response = client.get(reverse('wallets:users-who-claimed-nft'))
+
+    assert response.json() == expected_claimed_users_case_no_claims
+    assert response.status_code == 200
