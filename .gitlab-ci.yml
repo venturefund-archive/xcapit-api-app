@@ -97,14 +97,6 @@ docker_lint:
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
 
-code_quality:
-  stage: test
-  artifacts:
-    paths: [gl-code-quality-report.json]
-  rules:
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
-
 ### Syntax check
 syntax_checking:
   <<: *syntax-check
