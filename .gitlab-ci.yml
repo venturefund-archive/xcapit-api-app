@@ -1,7 +1,4 @@
 ---
-include:
-  - template: Code-Quality.gitlab-ci.yml
-
 stages:
   - syntax
   - test
