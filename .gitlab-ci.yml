@@ -36,8 +36,6 @@ cache:
 ### Syntax check
 .syntax-check: &syntax-check
   stage: syntax
-  tags:
-    - foss
   image: python:${PYTHON_VERSION}
   cache:
     untracked: true
@@ -54,8 +52,6 @@ cache:
 ### Django pytest
 .django-pytest: &django-pytest
   stage: test
-  tags:
-    - foss
   image: python:${PYTHON_VERSION}
   services:
     - name: postgres:12.0
@@ -78,8 +74,6 @@ cache:
 ### Docker lint
 .docker-lint: &docker-lint
   stage: syntax
-  tags:
-    - foss
   image: '${HADOLINT_REPO}:${HADOLINT_TAG}'
   before_script:
     - hadolint --version
@@ -90,8 +84,6 @@ cache:
 ### Semantic release
 .semantic-release: &semantic-release
   stage: release
-  tags:
-    - foss
   image: node:${NODE_VERSION}
   before_script:
     - npm install @semantic-release/gitlab @semantic-release/changelog @semantic-release/release-notes-generator @semantic-release/git -D
@@ -108,8 +100,6 @@ docker_lint:
 
 code_quality:
   stage: test
-  tags:
-    - foss
   artifacts:
     paths: [gl-code-quality-report.json]
   rules:
@@ -148,8 +138,6 @@ release_develop:
 
 cleanup_job:
   stage: .post
-  tags:
-    - foss
   script:
     - echo "Cleaning up"
     - rm -rf "%CACHE_PATH%/%CI_PIPELINE_ID%"
