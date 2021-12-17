@@ -49,3 +49,16 @@ def expected_json_survey():
                 ]
             }
         ])
+
+
+@pytest.fixture
+def expected_question_json_response():
+    return {
+        "text": "Lorem Ipsum",
+        "order": 0,
+        "options": [
+            {"text": "ChoiceOne", "points": 1},
+            {"text": "ChoiceTwo", "points": 2},
+            {"text": "ChoiceThree", "points": 3}
+        ]
+    }
