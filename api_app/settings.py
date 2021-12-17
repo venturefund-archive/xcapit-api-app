@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'terms_and_conditions.apps.TermsAndConditionsConfig',
     'administration.apps.AdministrationConfig',
     'subscription_plans.apps.SubscriptionPlansConfig',
-    'wallets.apps.WalletsConfig'
+    'wallets.apps.WalletsConfig',
+    'surveys.apps.SurveysConfig'
 ]
 
 MIDDLEWARE = [

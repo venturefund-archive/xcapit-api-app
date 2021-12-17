@@ -25,6 +25,7 @@ urlpatterns = [
     path('v1/api/administration/', include('administration.urls', namespace='administration')),
     path('v1/api/subscription_plans/', include('subscription_plans.urls', namespace='subscription_plans')),
     path('v1/api/wallets/', include('wallets.urls', namespace='wallets')),
+    path('v1/api/surveys/', include('surveys.urls', namespace='surveys')),
     path('v1/api/admin/', admin.site.urls),
     path('', include('django_prometheus.urls')),
 ]

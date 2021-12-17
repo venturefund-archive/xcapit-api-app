@@ -10,7 +10,7 @@ def create_survey():
                {'text': 'ChoiceTwo', 'value': 2},
                {'text': 'ChoiceThree', 'value': 3}]
 
-    survey = Survey.objects.create(name='SurveyOne')
+    survey = Survey.objects.create(name='investor_test')
     for question in questions:
         created_question = Question.objects.create(survey=survey, text=question)
         for choice in choices:
