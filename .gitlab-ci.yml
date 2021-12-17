@@ -52,6 +52,8 @@ cache:
 ### Django pytest
 .django-pytest: &django-pytest
   stage: test
+  tags:
+    - foss
   image: python:${PYTHON_VERSION}
   services:
     - name: postgres:12.0
