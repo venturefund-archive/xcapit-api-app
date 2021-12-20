@@ -49,8 +49,6 @@ cache:
 ### Django pytest
 .django-pytest: &django-pytest
   stage: test
-  tags:
-    - foss
   image: python:${PYTHON_VERSION}
   services:
     - name: postgres:12.0
@@ -63,6 +61,8 @@ cache:
     - pytest --junitxml=$CI_PROJECT_DIR/report.xml
     - coverage run -m pytest
     - coverage report -m
+  after_script:
+    - coveralls
   artifacts:
     when: always
     reports:
