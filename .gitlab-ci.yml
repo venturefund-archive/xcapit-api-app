@@ -63,7 +63,7 @@ cache:
     - pytest --junitxml=$CI_PROJECT_DIR/report.xml
     - coverage run -m pytest
     - coverage report -m
-  after_scripts:
+  after_script:
     - coveralls
   artifacts:
     when: always
