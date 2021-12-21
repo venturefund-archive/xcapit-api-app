@@ -18,37 +18,36 @@ def create_survey():
 
 
 @pytest.fixture
-def expected_json_survey():
-    return json.dumps(
-        [
-            {
-                "text": "Lorem Ipsum",
-                "order": 0,
-                "options": [
-                    {"text": "ChoiceOne", "points": 1},
-                    {"text": "ChoiceTwo", "points": 2},
-                    {"text": "ChoiceThree", "points": 3}
-                ]
-            },
-            {
-                "text": "dolor sit amet",
-                "order": 1,
-                "options": [
-                    {"text": "ChoiceOne", "points": 1},
-                    {"text": "ChoiceTwo", "points": 2},
-                    {"text": "ChoiceThree", "points": 3}
-                ]
-            },
-            {
-                "text": "consectetur adipiscing elit",
-                "order": 2,
-                "options": [
-                    {"text": "ChoiceOne", "points": 1},
-                    {"text": "ChoiceTwo", "points": 2},
-                    {"text": "ChoiceThree", "points": 3}
-                ]
-            }
-        ])
+def expected_survey():
+    return [
+        {
+            "text": "Lorem Ipsum",
+            "order": 0,
+            "options": [
+                {"text": "ChoiceOne", "points": 1},
+                {"text": "ChoiceTwo", "points": 2},
+                {"text": "ChoiceThree", "points": 3}
+            ]
+        },
+        {
+            "text": "dolor sit amet",
+            "order": 1,
+            "options": [
+                {"text": "ChoiceOne", "points": 1},
+                {"text": "ChoiceTwo", "points": 2},
+                {"text": "ChoiceThree", "points": 3}
+            ]
+        },
+        {
+            "text": "consectetur adipiscing elit",
+            "order": 2,
+            "options": [
+                {"text": "ChoiceOne", "points": 1},
+                {"text": "ChoiceTwo", "points": 2},
+                {"text": "ChoiceThree", "points": 3}
+            ]
+        }
+    ]
 
 
 @pytest.fixture
