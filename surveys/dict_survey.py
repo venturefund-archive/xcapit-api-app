@@ -3,9 +3,9 @@ from surveys.models import Survey
 import json
 
 
-class SurveyJsonResponse:
+class DictSurvey:
     def __init__(self, survey: Survey):
         self.survey = survey
 
     def value(self):
-        return json.dumps([DictQuestion(question).value() for question in self.survey.questions.all()])
+        return [DictQuestion(question).value() for question in self.survey.questions.all()]
