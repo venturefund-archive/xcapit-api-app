@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 'text': 'En general, ¿Cómo te describirías como tomador de riesgos?',
                 'order': 3,
                 'choices': [{'text': 'Una persona jugada', 'value': 4},
-                            {'text': 'Soy una persona dispuesta a correr riesgos'
+                            {'text': 'Soy una persona dispuesta a correr riesgos '
                                      'después de completar una investigación adecuada.', 'value': 3},
                             {'text': 'Persona cautelosa', 'value': 2},
                             {'text': 'Verdaderamente evito los riesgos ', 'value': 1}]
