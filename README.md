@@ -1,5 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/gitlab/xcapit-foss/api-app/badge.svg?branch=develop)](https://coveralls.io/gitlab/xcapit-foss/api-app?branch=develop)
-
+[![Coverage Status](https://coveralls.io/repos/gitlab/xcapit-foss/api-app/badge.svg?branch=HEAD)](https://coveralls.io/gitlab/xcapit-foss/api-app?branch=HEAD)
 # Xcapit Auth Service
 
 Xcapit Auth Service is a rest api that manage all user related data. 
