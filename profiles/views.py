@@ -41,6 +41,13 @@ class ProfileAPIView(APIView):
 
         return Response(True, status.HTTP_200_OK)
 
+    def patch(self, request, user_id):
+        profile = Profile.objects.get(user_id=user_id)
+        serializer = self.serializer_class(instance=profile, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ProfileValidAPIView(APIView):
     serializer_class = ProfileSerializer
