@@ -4,7 +4,6 @@ from profiles.models import Profile
 from users.models import User
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_update_notifications_enabled_patch(client):
     user = User.objects.create_user('test', 'test')
@@ -18,7 +17,6 @@ def test_update_notifications_enabled_patch(client):
     assert not Profile.objects.get(user_id=user.id).notifications_enabled
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_update_notifications_enabled_patch_invalid(client):
     User.objects.create_user('test', 'test')
