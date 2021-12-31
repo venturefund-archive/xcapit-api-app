@@ -1,6 +1,6 @@
 from typing import Union
-
 from rest_framework import serializers
+import profiles.models
 from .models import Profile
 
 
@@ -35,12 +35,15 @@ class ProfileSerializer(serializers.ModelSerializer):
     cuit = serializers.CharField(max_length=15, required=True, allow_blank=True, allow_null=True)
     direccion = serializers.CharField(max_length=150, required=True, allow_blank=True, allow_null=True)
     pais = serializers.CharField(max_length=150, required=True, allow_blank=True, allow_null=True)
+    lang = serializers.ChoiceField(choices=profiles.models.LANGUAGES, allow_null=True, allow_blank=True)
+    notifications_enabled = serializers.BooleanField(required=False, allow_null=True)
 
     class Meta:
         model = Profile
         fields = (
             'email', 'first_name', 'cellphone', 'condicion_iva',
-            'tipo_factura', 'cuit', 'direccion', 'pais'
+            'tipo_factura', 'cuit', 'direccion', 'pais', 'lang',
+            'notifications_enabled'
         )
 
 
