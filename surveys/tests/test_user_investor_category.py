@@ -1,5 +1,4 @@
 import pytest
-from users.models import User
 from profiles.models import Profile
 from unittest.mock import Mock
 from surveys.user_investor_category import UserInvestorCategory
