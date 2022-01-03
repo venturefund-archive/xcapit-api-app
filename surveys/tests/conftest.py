@@ -1,4 +1,6 @@
-from surveys.models import Choice, Question, Survey
+from surveys.models import Choice, Question, Survey, InvestorCategory
+from profiles.models import Profile
+from users.models import User
 import pytest
 import json
 
@@ -61,3 +63,30 @@ def expected_question_json_response():
             {"text": "ChoiceThree", "points": 3}
         ]
     }
+
+
+@pytest.fixture
+def create_categories():
+    categories = [
+        {"name": "wealth_managements.profiles.conservative", "range_from": 1, "range_to": 7},
+        {"name": "wealth_managements.profiles.medium", "range_from": 8, "range_to": 13},
+        {"name": "wealth_managements.profiles.risky", "range_from": 14, "range_to": 18}
+    ]
+    for category in categories:
+        InvestorCategory.objects.create(**category)
+
+
+@pytest.fixture
+def test_user():
+    return User.objects.create_user('test', 'test')
+
+
+@pytest.fixture
+def user_profile_with_investor_score(test_user):
+    def uwis(score: int):
+        user_profile = Profile.objects.get(user_id=test_user.id)
+        user_profile.investor_score = score
+        user_profile.save()
+        return user_profile
+
+    return uwis
