@@ -34,3 +34,9 @@ class Choice(models.Model):
     class Meta:
         verbose_name_plural = 'Choice'
         verbose_name = 'Choices'
+
+
+class InvestorCategory(models.Model):
+    name = models.CharField(max_length=60)
+    range_from = models.IntegerField()
+    range_to = models.IntegerField()
