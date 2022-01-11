@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from .models import Referral
 from .validators import AlreadyExistUserEmailValidator
@@ -7,7 +6,6 @@ from users.models import User
 
 
 class ReferralSerializer(serializers.ModelSerializer):
-
     email = serializers.EmailField(
         validators=[
             UniqueValidator(
@@ -35,3 +33,5 @@ class ReferralSerializer(serializers.ModelSerializer):
         model = Referral
         fields = '__all__'
         read_only_fields = ('created_at', 'accepted_at', 'referral_id')
+
+

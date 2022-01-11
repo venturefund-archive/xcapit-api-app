@@ -2,7 +2,22 @@ import pytest
 import pandas as pd
 from users.models import User
 from wallets.models import Wallet
-from referrals.models import Referral
+from referrals.models import Referral, Campaign, Claim
+
+
+@pytest.fixture
+def user_mock():
+    return User.objects.create_user(email='test', password='TestPass123')
+
+
+@pytest.fixture
+def campaign_mock():
+    return Campaign.objects.create(name='Test', date_start='2021-10-01')
+
+
+@pytest.fixture
+def claim_mock(campaign_mock, user_mock):
+    return Claim.objects.create(campaign=campaign_mock, user=user_mock)
 
 
 @pytest.fixture
