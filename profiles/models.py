@@ -31,7 +31,11 @@ class Profile(models.Model):
 
     pais = models.CharField(max_length=150, blank=True)
 
+    notifications_enabled = models.BooleanField(default=True)
+
     lang = models.CharField(max_length=30, choices=LANGUAGES, default='es')
+
+    investor_score = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.email
