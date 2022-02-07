@@ -27,8 +27,9 @@ def test_first_and_second_level_referrals(
 ):
     set_fixtures_referrals_case_1()
     first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
-    pd.testing.assert_frame_equal(first_level.all(), expected_first_level)
     second_level = NextLevelReferrals(list(first_level.all().referred_id))
+
+    pd.testing.assert_frame_equal(first_level.all(), expected_first_level)
     pd.testing.assert_frame_equal(second_level.all(), expected_second_level)
 
 
@@ -36,8 +37,9 @@ def test_first_and_second_level_referrals(
 def test_zero_referrals(set_fixtures_referrals_case_zero):
     set_fixtures_referrals_case_zero()
     first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
-    assert first_level.all().empty
     second_level = NextLevelReferrals(list(first_level.all().referred_id))
+
+    assert first_level.all().empty
     assert second_level.all().empty
 
 
@@ -48,6 +50,7 @@ def test_zero_second_level_referrals(
 ):
     set_fixtures_referrals_case_zero_second_level()
     first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
-    pd.testing.assert_frame_equal(first_level.all(), expected_referrals_case_zero_second_level)
     second_level = NextLevelReferrals(list(first_level.all().referred_id))
+
+    pd.testing.assert_frame_equal(first_level.all(), expected_referrals_case_zero_second_level)
     assert second_level.all().empty

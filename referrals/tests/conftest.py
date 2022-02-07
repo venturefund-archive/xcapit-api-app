@@ -1,5 +1,8 @@
+import pytz
 import pytest
+import datetime
 import pandas as pd
+from unittest import mock
 from users.models import User
 from wallets.models import Wallet
 from referrals.models import Referral
@@ -8,17 +11,18 @@ from referrals.models import Referral
 @pytest.fixture
 def set_referrals_fixtures():
     def srf(users, wallets, referrals):
-        for user in users:
-            rid = user.pop('referral_id')
-            user = User.objects.create_user(**user)
-            user.referral_id = rid
-            user.save()
-        for user_wallets in wallets:
-            for user_wallet in user_wallets:
-                Wallet.objects.create(**user_wallet)
-        for referral in referrals:
-            Referral.objects.create(**referral)
-
+        mocked = datetime.datetime(2021, 4, 4, 21, 30, 0, tzinfo=pytz.utc)
+        with mock.patch('django.utils.timezone.now', mock.Mock(return_value=mocked)):
+            for user in users:
+                rid = user.pop('referral_id')
+                user = User.objects.create_user(**user)
+                user.referral_id = rid
+                user.save()
+            for user_wallets in wallets:
+                for user_wallet in user_wallets:
+                    Wallet.objects.create(**user_wallet)
+            for referral in referrals:
+                Referral.objects.create(**referral)
     return srf
 
 
@@ -60,32 +64,32 @@ def users_for_referrals_case_zero_second_level():
 @pytest.fixture
 def referrals_for_case_1():
     return [
-        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_1@test.com'},
-        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_2@test.com'},
-        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_3@test.com'},
-        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_4@test.com'},
+        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_1@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_2@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_3@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_4@test.com', 'created_at': '2021-04-04 21:30:00'},
 
-        {'accepted': True, 'referral_id': 'rid_for_1', 'email': 'sor_11@test.com'},
-        {'accepted': True, 'referral_id': 'rid_for_1', 'email': 'sor_12@test.com'},
-        {'accepted': True, 'referral_id': 'rid_for_1', 'email': 'sor_13@test.com'},
+        {'accepted': True, 'referral_id': 'rid_for_1', 'email': 'sor_11@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_for_1', 'email': 'sor_12@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_for_1', 'email': 'sor_13@test.com', 'created_at': '2021-04-04 21:30:00'},
 
-        {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_31@test.com'},
-        {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_32@test.com'},
-        {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_33@test.com'},
-        {'accepted': False, 'referral_id': 'rid_for_3', 'email': 'sor_34@test.com'},
+        {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_31@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_32@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_for_3', 'email': 'sor_33@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': False, 'referral_id': 'rid_for_3', 'email': 'sor_34@test.com', 'created_at': '2021-04-04 21:30:00'},
     ]
 
 
 @pytest.fixture
 def referrals_for_case_2():
-    return [{'accepted': True, 'referral_id': 'avVYfJ', 'email': 'gamin_myhero.009a@oanghika.com'}]
+    return [{'accepted': True, 'referral_id': 'avVYfJ', 'email': 'gamin_myhero.009a@oanghika.com', 'created_at': '2021-04-04 21:30:00'}]
 
 
 @pytest.fixture
 def referrals_for_case_zero_second_level():
     return [
-        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_1@test.com'},
-        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_2@test.com'},
+        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_1@test.com', 'created_at': '2021-04-04 21:30:00'},
+        {'accepted': True, 'referral_id': 'rid_user', 'email': 'for_2@test.com', 'created_at': '2021-04-04 21:30:00'},
     ]
 
 
@@ -188,38 +192,53 @@ def set_fixtures_referrals_case_zero_second_level(
 
 @pytest.fixture
 def expected_first_level():
-    return pd.DataFrame(
+    first_level_result = pd.DataFrame(
         data={
             'referred_id': ['rid_for_1', 'rid_for_2', 'rid_for_3', 'rid_for_4'],
             'referral_id': ['rid_user', 'rid_user', 'rid_user', 'rid_user'],
+            'created_at': ['2021-04-04 21:30:00', '2021-04-04 21:30:00', '2021-04-04 21:30:00', '2021-04-04 21:30:00'],
             'wallet_created': [True, False, False, True],
             'user_id': [2, 3, 4, 5]
         }
     ).set_index('user_id')
 
+    first_level_result['created_at'] = pd.to_datetime(first_level_result['created_at'], format='%Y-%m-%d %H:%M:%S')
+
+    return first_level_result
+
 
 @pytest.fixture
 def expected_second_level():
-    return pd.DataFrame(
+    second_level_result = pd.DataFrame(
         data={
             'referred_id': ['rid_sor_11', 'rid_sor_12', 'rid_sor_13', 'rid_sor_31', 'rid_sor_32', 'rid_sor_33'],
             'referral_id': ['rid_for_1', 'rid_for_1', 'rid_for_1', 'rid_for_3', 'rid_for_3', 'rid_for_3'],
+            'created_at': ['2021-04-04 21:30:00', '2021-04-04 21:30:00', '2021-04-04 21:30:00', '2021-04-04 21:30:00', '2021-04-04 21:30:00', '2021-04-04 21:30:00'],
             'wallet_created': [True, False, True, True, False, False],
             'user_id': [6, 7, 8, 9, 10, 11]
         }
     ).set_index('user_id')
 
+    second_level_result['created_at'] = pd.to_datetime(second_level_result['created_at'], format='%Y-%m-%d %H:%M:%S')
+
+    return second_level_result
+
 
 @pytest.fixture
 def expected_referrals_case_zero_second_level():
-    return pd.DataFrame(
+    zero_second_level_result = pd.DataFrame(
         data={
             'referred_id': ['rid_for_1', 'rid_for_2'],
             'referral_id': ['rid_user', 'rid_user'],
+            'created_at': ['2021-04-04 21:30:00', '2021-04-04 21:30:00'],
             'wallet_created': [True, False],
             'user_id': [2, 3]
         }
     ).set_index('user_id')
+
+    zero_second_level_result['created_at'] = pd.to_datetime(zero_second_level_result['created_at'], format='%Y-%m-%d %H:%M:%S')
+
+    return zero_second_level_result
 
 
 @pytest.fixture

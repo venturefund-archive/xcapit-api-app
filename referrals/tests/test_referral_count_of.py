@@ -33,3 +33,5 @@ def test_referral_count_of_value_with_wallet_case_2(set_fixtures_referrals_case_
     assert ReferralCountOf(second_level, True).value() == 0
     assert ReferralCountOf(first_level, False).value() == 0
     assert ReferralCountOf(second_level, False).value() == 0
+
+# TODO: Add some tests to validate the new filter feature
