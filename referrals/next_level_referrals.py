@@ -23,6 +23,7 @@ class NextLevelReferrals:
             'u.referral_id AS referred_id, '
             'u.id AS user_id, '
             'r.referral_id, '
+            'r.created_at, '
             '(SELECT COUNT(w.id) > 0 FROM wallets_wallet w WHERE w.user_id=u.id) AS wallet_created '
             'FROM referrals_referral r '
             'INNER join users_user u ON u.email = r.email '
@@ -34,7 +35,7 @@ class NextLevelReferrals:
     @staticmethod
     def _empty_dataframe():
         return pd.DataFrame(
-            columns=['referred_id', 'user_id', 'referral_id', 'wallet_created']
+            columns=['referred_id', 'user_id', 'referral_id', 'created_at', 'wallet_created']
         ).set_index('user_id')
 
     @cache
