@@ -244,15 +244,15 @@ def expected_referrals_case_zero_second_level():
 @pytest.fixture
 def expected_user_referrals():
     return {
-        "first_order": {"with_wallet": 2, "without_wallet": 2, "reward": 1},
-        "second_order": {"with_wallet": 3, "without_wallet": 3, "reward": 0.5}
+        "first_order": {"with_wallet": 0, "without_wallet": 4, "reward": 1},
+        "second_order": {"with_wallet": 0, "without_wallet": 3, "reward": 0.5}
     }
 
 
 @pytest.fixture
 def expected_user_referrals_case_2():
     return {
-        "first_order": {"with_wallet": 1, "without_wallet": 0, "reward": 1},
+        "first_order": {"with_wallet": 0, "without_wallet": 1, "reward": 1},
         "second_order": {"with_wallet": 0, "without_wallet": 0, "reward": 0.5}
     }
 
@@ -268,6 +268,6 @@ def expected_user_zero_referrals():
 @pytest.fixture
 def expected_user_referrals_zero_second_level():
     return {
-        "first_order": {"with_wallet": 1, "without_wallet": 1, "reward": 1},
+        "first_order": {"with_wallet": 0, "without_wallet": 2, "reward": 1},
         "second_order": {"with_wallet": 0, "without_wallet": 0, "reward": 0.5}
     }
