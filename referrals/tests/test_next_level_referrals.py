@@ -52,5 +52,5 @@ def test_zero_second_level_referrals(
     first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
     second_level = NextLevelReferrals(list(first_level.all().referred_id))
 
-    pd.testing.assert_frame_equal(first_level.all(), expected_referrals_case_zero_second_level)
     assert second_level.all().empty
+    pd.testing.assert_frame_equal(first_level.all(), expected_referrals_case_zero_second_level)
