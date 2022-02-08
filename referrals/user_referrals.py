@@ -1,3 +1,4 @@
+from referrals.filtered_referral_count import FilteredReferralCount
 from users.models import User
 from functools import lru_cache as cache
 from referrals.referral_count_of import ReferralCountOf
@@ -22,13 +23,13 @@ class UserReferrals:
     def to_dict(self):
         return {
             'first_order': {
-                'with_wallet': ReferralCountOf(self.first_order(), True).value(),
-                'without_wallet': ReferralCountOf(self.first_order(), False).value(),
+                'with_wallet': FilteredReferralCount(ReferralCountOf(self.first_order(), True)).value(),
+                'without_wallet': FilteredReferralCount(ReferralCountOf(self.first_order(), False)).value(),
                 'reward': FIRST_ORDER_REWARD
             },
             'second_order': {
-                'with_wallet': ReferralCountOf(self.second_order(), True).value(),
-                'without_wallet': ReferralCountOf(self.second_order(), False).value(),
+                'with_wallet': FilteredReferralCount(ReferralCountOf(self.second_order(), True)).value(),
+                'without_wallet': FilteredReferralCount(ReferralCountOf(self.second_order(), False)).value(),
                 'reward': SECOND_ORDER_REWARD
             }
         }
