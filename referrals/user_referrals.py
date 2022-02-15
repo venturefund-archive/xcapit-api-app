@@ -1,6 +1,7 @@
 from api_app.settings import NEW_CAMPAIGN, OLD_CAMPAIGN
 from core.datetime.datetime_of import DefaultDatetimeOf
 from core.datetime.datetime_range import DatetimeRange
+from core.datetime.utc_datetime_of import UTCDatetimeOf
 from referrals.filtered_referral_count import FilteredReferralCount
 from functools import lru_cache as cache
 from referrals.referral_count_of import ReferralCountOf
@@ -26,20 +27,26 @@ class UserReferrals:
     def to_dict(self):
         return {
             'first_order': {
-                'with_wallet': self._order_count(self.first_order(), True, NEW_CAMPAIGN).value(),
-                'without_wallet': self._order_count(self.first_order(), False, OLD_CAMPAIGN).value() +
-                                  self._order_count(self.first_order(), True, OLD_CAMPAIGN).value(),
+                'with_wallet': self._order_count_since(self.first_order(), True, NEW_CAMPAIGN).value(),
+                'without_wallet': self._order_count_to(self.first_order(), False, OLD_CAMPAIGN).value() +
+                                  self._order_count_to(self.first_order(), True, OLD_CAMPAIGN).value(),
                 'reward': FIRST_ORDER_REWARD
             },
             'second_order': {
                 'with_wallet': 0,
-                'without_wallet': self._order_count(self.second_order(), False, OLD_CAMPAIGN).value(),
+                'without_wallet': self._order_count_to(self.second_order(), False, OLD_CAMPAIGN).value(),
                 'reward': SECOND_ORDER_REWARD
             }
         }
 
     @staticmethod
-    def _order_count(order: NextLevelReferrals, with_wallet: bool, a_campaign_datetime: str) -> FilteredReferralCount:
+    def _order_count_since(order: NextLevelReferrals, with_wallet: bool, a_campaign_datetime: str) -> FilteredReferralCount:
         return FilteredReferralCount(
             ReferralCountOf(order, with_wallet),
-            DatetimeRange(since=DefaultDatetimeOf(a_campaign_datetime)))
+            DatetimeRange(since=UTCDatetimeOf(DefaultDatetimeOf(a_campaign_datetime))))
+
+    @staticmethod
+    def _order_count_to(order: NextLevelReferrals, with_wallet: bool, a_campaign_datetime: str) -> FilteredReferralCount:
+        return FilteredReferralCount(
+            ReferralCountOf(order, with_wallet),
+            DatetimeRange(to=UTCDatetimeOf(DefaultDatetimeOf(a_campaign_datetime))))
