@@ -1,8 +1,7 @@
 from api_app.settings import NEW_CAMPAIGN, OLD_CAMPAIGN
-from core.datetime.datetime_of import DatetimeOf
+from core.datetime.datetime_of import DefaultDatetimeOf
 from core.datetime.datetime_range import DatetimeRange
 from referrals.filtered_referral_count import FilteredReferralCount
-from users.models import User
 from functools import lru_cache as cache
 from referrals.referral_count_of import ReferralCountOf
 from referrals.next_level_referrals import NextLevelReferrals
@@ -12,16 +11,17 @@ SECOND_ORDER_REWARD = 0.5
 
 
 class UserReferrals:
-    def __init__(self, user: User):
-        self._user = user
+    def __init__(self, first_order: NextLevelReferrals = None, second_order: NextLevelReferrals = None):
+        self._second_order = second_order
+        self._first_order = first_order
 
     @cache
     def first_order(self):
-        return NextLevelReferrals([self._user.referral_id])
+        return self._first_order
 
     @cache
     def second_order(self):
-        return NextLevelReferrals(list(self.first_order().all().referred_id))
+        return self._second_order
 
     def to_dict(self):
         return {
@@ -42,4 +42,4 @@ class UserReferrals:
     def _order_count(order: NextLevelReferrals, with_wallet: bool, a_campaign_datetime: str) -> FilteredReferralCount:
         return FilteredReferralCount(
             ReferralCountOf(order, with_wallet),
-            DatetimeRange(since=DatetimeOf(a_campaign_datetime)))
+            DatetimeRange(since=DefaultDatetimeOf(a_campaign_datetime)))
