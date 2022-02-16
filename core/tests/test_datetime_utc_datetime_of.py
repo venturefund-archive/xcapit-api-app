@@ -1,5 +1,4 @@
 import pytz
-import pytest
 from datetime import datetime
 from core.datetime.datetime_of import DefaultDatetimeOf
 from core.datetime.utc_datetime_of import UTCDatetimeOf
