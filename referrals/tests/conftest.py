@@ -8,6 +8,18 @@ from wallets.models import Wallet
 from referrals.models import Referral
 
 
+def create_with_utc(df: pd.DataFrame):
+    df['created_at'] = pd.to_datetime(df['created_at'], format='%Y-%m-%d %H:%M:%S', utc=True)
+    return df
+
+
+@pytest.fixture
+def empty_next_level():
+    return pd.DataFrame(
+        columns=['referred_id', 'user_id', 'referral_id', 'created_at', 'wallet_created']
+    ).set_index('user_id')
+
+
 @pytest.fixture
 def set_referrals_fixtures():
     def srf(users, wallets, referrals):
@@ -239,6 +251,24 @@ def expected_referrals_case_zero_second_level():
     zero_second_level_result['created_at'] = pd.to_datetime(zero_second_level_result['created_at'], format='%Y-%m-%d %H:%M:%S')
 
     return zero_second_level_result
+
+
+@pytest.fixture
+def expected_referrals_case_case_2_level_one():
+    zero_second_level_result = pd.DataFrame(
+        data={
+            'referred_id': ['rid_for_1'],
+            'referral_id': ['rid_user'],
+            'created_at': ['2021-04-04 21:30:00'],
+            'wallet_created': [False],
+            'user_id': [2]
+        }
+    ).set_index('user_id')
+
+    zero_second_level_result['created_at'] = pd.to_datetime(zero_second_level_result['created_at'], format='%Y-%m-%d %H:%M:%S')
+
+    return zero_second_level_result
+
 
 
 @pytest.fixture
