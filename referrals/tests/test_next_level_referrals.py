@@ -16,7 +16,7 @@
 import pytest
 import pandas as pd
 from users.models import User
-from referrals.next_level_referrals import NextLevelReferrals
+from referrals.next_level_referrals import DefaultNextLevelReferrals
 
 
 @pytest.mark.django_db
@@ -26,8 +26,8 @@ def test_first_and_second_level_referrals(
         expected_second_level
 ):
     set_fixtures_referrals_case_1()
-    first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
-    second_level = NextLevelReferrals(list(first_level.all().referred_id))
+    first_level = DefaultNextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
+    second_level = DefaultNextLevelReferrals(list(first_level.all().referred_id))
 
     pd.testing.assert_frame_equal(first_level.all(), expected_first_level)
     pd.testing.assert_frame_equal(second_level.all(), expected_second_level)
@@ -36,8 +36,8 @@ def test_first_and_second_level_referrals(
 @pytest.mark.django_db
 def test_zero_referrals(set_fixtures_referrals_case_zero):
     set_fixtures_referrals_case_zero()
-    first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
-    second_level = NextLevelReferrals(list(first_level.all().referred_id))
+    first_level = DefaultNextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
+    second_level = DefaultNextLevelReferrals(list(first_level.all().referred_id))
 
     assert first_level.all().empty
     assert second_level.all().empty
@@ -49,8 +49,8 @@ def test_zero_second_level_referrals(
         expected_referrals_case_zero_second_level
 ):
     set_fixtures_referrals_case_zero_second_level()
-    first_level = NextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
-    second_level = NextLevelReferrals(list(first_level.all().referred_id))
+    first_level = DefaultNextLevelReferrals(list(User.objects.filter(id=1).values_list('referral_id', flat=True)))
+    second_level = DefaultNextLevelReferrals(list(first_level.all().referred_id))
 
     assert second_level.all().empty
     pd.testing.assert_frame_equal(first_level.all(), expected_referrals_case_zero_second_level)
