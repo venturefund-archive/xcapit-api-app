@@ -1,16 +1,16 @@
 import pytest
-from core.datetime.datetime_of import DatetimeOf
+from core.datetime.datetime_of import DefaultDatetimeOf
 from core.datetime.datetime_range import DatetimeRange
 
 
 @pytest.fixture
 def since_datetime():
-    return DatetimeOf('2021-04-04T21:30:00Z')
+    return DefaultDatetimeOf('2021-04-04T21:30:00Z')
 
 
 @pytest.fixture
 def to_datetime():
-    return DatetimeOf('2021-04-05T21:30:00Z')
+    return DefaultDatetimeOf('2021-04-05T21:30:00Z')
 
 
 def test_new(since_datetime, to_datetime):

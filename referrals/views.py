@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from api_app.settings import PWA_DOMAIN
 from core.clients import NotificationsClient
+from .next_level_referrals import DefaultNextLevelReferrals
 from .serializers import ReferralSerializer
 from .models import Referral
 from core.paginations import CustomCursorPaginationAPU
@@ -78,5 +79,7 @@ class UserReferralsCountView(APIView):
 
     def get(self, request, user_id):
         user = get_object_or_404(User, pk=user_id)
-        user_referrals_count = UserReferrals(user).to_dict()
-        return Response(user_referrals_count, status.HTTP_200_OK)
+        first_order = DefaultNextLevelReferrals([user.referral_id])
+        second_order = DefaultNextLevelReferrals(list(first_order.all().referred_id))
+
+        return Response(UserReferrals(first_order, second_order).to_dict(), status.HTTP_200_OK)

@@ -1,10 +1,27 @@
+from abc import ABC, abstractmethod
 import pandas as pd
 from typing import List
 from django.db import connection
 from functools import lru_cache as cache
 
 
-class NextLevelReferrals:
+class NextLevelReferrals(ABC):
+
+    @abstractmethod
+    def all(self):
+        """"""
+
+
+class FakeNextLevelReferrals(NextLevelReferrals):
+
+    def __init__(self, return_all_value: pd.DataFrame):
+        self._return_all_value = return_all_value
+
+    def all(self):
+        return self._return_all_value
+
+
+class DefaultNextLevelReferrals(NextLevelReferrals):
     def __init__(self, referrals_id: List[str]):
         self._referrals_id = referrals_id
 
