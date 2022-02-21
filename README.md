@@ -4,6 +4,12 @@
 
 Xcapit Auth Service is a rest api that manage all user related data. 
 
+## Community
+
+- [Discord](https://discord.gg/AnGXcZ8P)
+- [Project Charter](https://xcapit-foss.gitlab.io/documentation/docs/project_charter)
+- [Code of Conduct](https://gitlab.com/xcapit-foss/app/-/blob/develop/CODE_OF_CONDUCT.md)
+
 ## Getting Started
 
 [Getting started](https://xcapit-foss.gitlab.io/documentation/docs/app-service/getting_started)
