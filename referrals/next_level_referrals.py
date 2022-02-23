@@ -1,10 +1,27 @@
+from abc import ABC, abstractmethod
 import pandas as pd
 from typing import List
 from django.db import connection
 from functools import lru_cache as cache
 
 
-class NextLevelReferrals:
+class NextLevelReferrals(ABC):
+
+    @abstractmethod
+    def all(self):
+        """"""
+
+
+class FakeNextLevelReferrals(NextLevelReferrals):
+
+    def __init__(self, return_all_value: pd.DataFrame):
+        self._return_all_value = return_all_value
+
+    def all(self):
+        return self._return_all_value
+
+
+class DefaultNextLevelReferrals(NextLevelReferrals):
     def __init__(self, referrals_id: List[str]):
         self._referrals_id = referrals_id
 
@@ -23,6 +40,7 @@ class NextLevelReferrals:
             'u.referral_id AS referred_id, '
             'u.id AS user_id, '
             'r.referral_id, '
+            'r.created_at, '
             '(SELECT COUNT(w.id) > 0 FROM wallets_wallet w WHERE w.user_id=u.id) AS wallet_created '
             'FROM referrals_referral r '
             'INNER join users_user u ON u.email = r.email '
@@ -34,7 +52,7 @@ class NextLevelReferrals:
     @staticmethod
     def _empty_dataframe():
         return pd.DataFrame(
-            columns=['referred_id', 'user_id', 'referral_id', 'wallet_created']
+            columns=['referred_id', 'user_id', 'referral_id', 'created_at', 'wallet_created']
         ).set_index('user_id')
 
     @cache
