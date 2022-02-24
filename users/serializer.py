@@ -17,7 +17,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         validators=[lowercase_validator, uppercase_validator, number_validator]
     )
 
-    referral_code = serializers.CharField(write_only=True, allow_null=True)
+    referral_code = serializers.CharField(write_only=True, allow_null=True, allow_blank=True)
 
     class Meta:
         model = User
