@@ -22,7 +22,8 @@ variables:
   PYTHON_VERSION: "${PYTHON_VERSION}"
   SRC_DIR: "."
   NODE_VERSION: '14'
-
+  PYTHON_VERSION: '3.8'
+  
 cache:
   untracked: true
   key: ${CI_COMMIT_REF_SLUG}
