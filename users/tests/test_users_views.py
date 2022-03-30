@@ -3,7 +3,15 @@ from django.urls import reverse
 from unittest.mock import patch
 from rest_framework import status
 from users.models import User
-from referrals.models import Referral
+from referrals.models import Referral, BlacklistModel
+
+
+def raw_user(email, password, referral_code):
+    return {
+        'email': email,
+        'password': password,
+        'referral_code': referral_code
+    }
 
 
 @pytest.mark.django_db
@@ -111,28 +119,6 @@ def test_login_with_google_exceptions(mock_google_response, client, google_respo
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('email, password, referral_code, expected_status', [
-    ['valid_email@test.com', 'invalidPass', None, status.HTTP_400_BAD_REQUEST],
-    ['valid_email@test.com', 'invalidpass1', None, status.HTTP_400_BAD_REQUEST],
-    ['valid_email@test.com', 'INVALIDPASS1', None, status.HTTP_400_BAD_REQUEST],
-    ['valid_email@test.com', 'Short', None, status.HTTP_400_BAD_REQUEST],
-])
-@patch('requests.post')
-def test_user_registration_view_invalid_data(mock_post, client, email, password, referral_code, expected_status):
-    mock_post.return_value.json.return_value = {}
-    mock_post.return_value.status_code = status.HTTP_200_OK
-    data = {
-        'email': email,
-        'password': password,
-        'referral_code': referral_code
-    }
-    response = client.post(reverse('users:user-registration'), data=data, content_type='application/json')
-
-    assert response.status_code == expected_status
-    assert response.json()['error_code'] == 'users.registration.invalidData'
-
-
-@pytest.mark.django_db
 @pytest.mark.parametrize('email, password, referral_code, expected_status, expected_response', [
     ['valid_email@test.com', 'invalidPass', None, status.HTTP_400_BAD_REQUEST, 'users.registration.invalidData'],
     ['valid_email@test.com', 'invalidpass1', None, status.HTTP_400_BAD_REQUEST, 'users.registration.invalidData'],
@@ -146,11 +132,8 @@ def test_user_registration_view_invalid_data(mock_post, client, email, password,
                                              expected_status, expected_response):
     mock_post.return_value.json.return_value = {}
     mock_post.return_value.status_code = status.HTTP_200_OK
-    data = {
-        'email': email,
-        'password': password,
-        'referral_code': referral_code
-    }
+    data = raw_user(email, password, referral_code)
+
     response = client.post(reverse('users:user-registration'), data=data, content_type='application/json')
 
     assert response.status_code == expected_status
@@ -172,11 +155,7 @@ def test_user_registration_view_valid_data(mock_post, client, email, password, r
     normalized_email = User.objects.normalize_email(email)
     mock_post.return_value.json.return_value = {}
     mock_post.return_value.status_code = status.HTTP_200_OK
-    data = {
-        'email': email,
-        'password': password,
-        'referral_code': referral_code
-    }
+    data = raw_user(email, password, referral_code)
 
     response = client.post(reverse('users:user-registration'), data=data, content_type='application/json')
 
@@ -184,3 +163,22 @@ def test_user_registration_view_valid_data(mock_post, client, email, password, r
     assert User.objects.get(email=normalized_email)
     if referral_code is not None:
         assert Referral.objects.get(email=normalized_email).referral_id == referral_code
+
+
+@pytest.mark.django_db
+@patch('requests.post')
+def test_user_registration_view_invalid_for_balcklist_referral(mock_post, client, create_user):
+    referral_code = 'any_text_as_referral_code'
+    BlacklistModel.objects.create(referral_id=referral_code)
+    data = raw_user('valid@email.com', 'validPass1', referral_code)
+    user_to_refer = create_user('user_to_refer@test.com', 'testPass')
+    user_to_refer.referral_id = referral_code
+    user_to_refer.save()
+    normalized_email = User.objects.normalize_email(data.get('email'))
+    mock_post.return_value.json.return_value = {}
+    mock_post.return_value.status_code = status.HTTP_200_OK
+
+    response = client.post(reverse('users:user-registration'), data=data, content_type='application/json')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert User.objects.filter(email=normalized_email).exists() is False

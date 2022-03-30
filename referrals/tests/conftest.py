@@ -301,3 +301,8 @@ def expected_user_referrals_zero_second_level():
         "first_order": {"with_wallet": 0, "without_wallet": 2, "reward": 1},
         "second_order": {"with_wallet": 0, "without_wallet": 0, "reward": 0.5}
     }
+
+
+@pytest.fixture
+def raw_token():
+    return 'token'

@@ -1,4 +1,8 @@
-from core.clients import NotificationsClient
+from core.validation_rules.validation_rules import ValidationRules
+from referrals.blacklist_tokens import BlacklistTokens
+from referrals.referral_token import ReferralToken
+from referrals.tests.test_referral_exists_rule import ReferralExistsRule
+from referrals.validation_rules.referral_blacklist_rule import ReferralBlacklistRule
 from .serializer import CustomTokenObtainPairSerializer, ResendEmailValidation, \
     CustomGoogleTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -14,14 +18,13 @@ from .models import User
 from .tokens import email_validation_token
 from .emails import EmailValidation, ResetPasswordEmail
 from core.helpers import ResponseHelper
-from rest_framework.exceptions import AuthenticationFailed
 from .services import get_hashid, ResendEmailValidationService
 from rest_framework.permissions import IsAuthenticated
 from users.serializer import UserSerializer
 from profiles.models import Profile
 from profiles.serializers import ProfileSerializer
 from referrals.services import validate_referral
-from referrals.models import Referral
+from referrals.models import Referral, BlacklistModel
 from google.oauth2 import id_token as token_auth
 from google.auth.transport import requests as google_auth_request
 from datetime import datetime
@@ -38,23 +41,37 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data
-        user['referral_code'] = user.get('referral_code')
-        if user['referral_code'] and not User.objects.filter(
-                referral_id=user['referral_code']
-        ).exists():
-            response = Response({}, status.HTTP_400_BAD_REQUEST)
-            return add_error_code(response, 'users.registration.referralIdNotExists')
+        if not self._referral_token(user.get('referral_code')).validate():
+            return add_error_code(
+                Response({}, status.HTTP_400_BAD_REQUEST), 'users.registration.referralIdNotExists')
+
         serializer = self.serializer_class(data=user)
         if not serializer.is_valid():
-            response = Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-            return add_error_code(response, 'users.registration.invalidData')
+            return add_error_code(
+                Response(serializer.errors, status.HTTP_400_BAD_REQUEST), 'users.registration.invalidData'
+            )
+
+        user_instance = self._save_user(serializer)
+        EmailValidation().send(user_instance)
+
+        return Response(UserSerializer(instance=user_instance).data, status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def _save_user(serializer):
         user_instance = serializer.save()
         user_instance.referral_id = get_hashid(user_instance.pk)
         user_instance.save()
-        email_validation = EmailValidation()
-        email_validation.send(user_instance)
-        user_serializer = UserSerializer(instance=user_instance)
-        return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+        return user_instance
+
+    @staticmethod
+    def _referral_token(referral_code):
+        return ReferralToken(
+            referral_code,
+            ValidationRules([
+                ReferralBlacklistRule(BlacklistTokens([obj.referral_id for obj in BlacklistModel.objects.all()])),
+                ReferralExistsRule(User.objects.filter(referral_id=referral_code).exists())
+            ])
+        )
 
 
 class ByEmailAPIView(APIView):

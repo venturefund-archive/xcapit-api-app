@@ -7,3 +7,8 @@ class Referral(models.Model):
     accepted = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
     referral_id = models.CharField(max_length=250)
+
+
+class BlacklistModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    referral_id = models.CharField(max_length=250)
