@@ -4,7 +4,7 @@ from core.validation_rules.validation_rules import ValidationRules
 from referrals.validation_rules.referral_exists_rule import ReferralExistsRule
 
 
-def test_new(raw_token):
+def test_new(raw_referral_token):
     assert ReferralExistsRule(False)
 
 

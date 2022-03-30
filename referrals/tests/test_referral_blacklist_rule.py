@@ -6,8 +6,8 @@ from referrals.validation_rules.referral_blacklist_rule import ReferralBlacklist
 
 
 @pytest.fixture
-def blacklist_tokens(raw_token):
-    return BlacklistTokens([raw_token])
+def blacklist_tokens(raw_referral_token):
+    return BlacklistTokens([raw_referral_token])
 
 
 @pytest.fixture
@@ -22,10 +22,10 @@ def test_new(blacklist_tokens):
     assert ReferralBlacklistRule(blacklist_tokens)
 
 
-def test_validation_false(raw_token, blacklist_tokens, referral_token):
+def test_validation_false(raw_referral_token, blacklist_tokens, referral_token):
     rule = ReferralBlacklistRule(blacklist_tokens)
 
-    assert rule.validate(referral_token(raw_token)) is False
+    assert rule.validate(referral_token(raw_referral_token)) is False
 
 
 def test_validation_true(blacklist_tokens, referral_token):

@@ -304,5 +304,5 @@ def expected_user_referrals_zero_second_level():
 
 
 @pytest.fixture
-def raw_token():
+def raw_referral_token():
     return 'token'
