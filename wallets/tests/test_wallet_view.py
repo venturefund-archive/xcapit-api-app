@@ -95,3 +95,11 @@ def test_claimed_nft_users_case_no_claims(client, wallet_and_nft_case_no_claims,
 
     assert response.json() == expected_claimed_users_case_no_claims
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_wallets_api_view(client, wallet_mock_with_default_user):
+    wallet_mock_with_default_user()
+    response = client.get(reverse('wallets:wallets'), {"page_size": 1})
+    assert response.status_code == 200
+    assert response.json()['results'] == [{"network": "ERC20", "address": "test_erc20_address"}]

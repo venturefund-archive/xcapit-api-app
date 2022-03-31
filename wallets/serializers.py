@@ -24,3 +24,9 @@ class NFTRequestSerializer(ModelSerializer):
     class Meta:
         model = NFTRequest
         fields = '__all__'
+
+
+class WalletSerializerWithoutUser(ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = ('address', 'network')
