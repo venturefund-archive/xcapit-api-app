@@ -1,6 +1,6 @@
 from referrals.referral_token import ReferralToken
+from referrals.blacklist_tokens import BlacklistTokens
 from core.validation_rules.validation_rule import ValidationRule
-from referrals.tests.test_referral_blacklist_rule import BlacklistTokens
 
 
 class ReferralBlacklistRule(ValidationRule):
