@@ -1,6 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from wallets.serializers import WalletSerializer, NFTRequestSerializer
+from rest_framework.viewsets import ModelViewSet
+
+from core.paginations import CustomPageNumberPagination
+from wallets.serializers import WalletSerializer, NFTRequestSerializer, WalletSerializerWithoutUser
 from django.shortcuts import get_object_or_404
 from wallets.models import NFTRequest, Wallet
 from users.models import User
@@ -64,3 +67,9 @@ class ClaimedNFTUsersView(APIView):
                           "address": user.get('wallets__address')}
                          for user in users]
         return Response(claimed_users, status=200)
+
+
+class WalletAPIView(ModelViewSet):
+    serializer_class = WalletSerializerWithoutUser
+    pagination_class = CustomPageNumberPagination
+    queryset = Wallet.objects.all()

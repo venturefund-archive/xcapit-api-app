@@ -1,4 +1,4 @@
-from rest_framework.pagination import CursorPagination
+from rest_framework.pagination import CursorPagination, PageNumberPagination
 from rest_framework.response import Response
 import urllib.parse as urlparse
 
@@ -38,3 +38,7 @@ class CustomCursorPaginationAPU(CursorPagination):
             },
             'results': data
         })
+
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size_query_param = "page_size"

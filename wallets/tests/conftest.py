@@ -72,3 +72,16 @@ def expected_claimed_users_case_some_users_have_wallet_and_already_claimed_nft()
 @pytest.fixture
 def expected_claimed_users_case_no_claims():
     return []
+
+
+@pytest.fixture
+def wallet_mock_with_default_user(user_mock):
+    def wmwdu():
+        wallets = [{"user": user_mock, "network": "ERC20", "address": "test_erc20_address"},
+                   {"user": user_mock, "network": "MATIC", "address": "test_matic_address"},
+                   {"user": user_mock, "network": "RSK", "address": "test_rsk_address"}]
+        for wallet in wallets:
+            Wallet.objects.create(**wallet)
+        return
+
+    return wmwdu
