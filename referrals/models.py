@@ -8,6 +8,10 @@ class Referral(models.Model):
     email = models.EmailField(unique=True)
     referral_id = models.CharField(max_length=250)
 
+    # asdf;klsajdflk;as
+
+
+
 
 class BlacklistModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
