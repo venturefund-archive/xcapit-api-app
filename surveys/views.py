@@ -9,5 +9,6 @@ class InvestorTestView(APIView):
 
     def get(self, request, *args, **kwargs):
         survey = get_object_or_404(Survey, name='investor_test')
-        response = DictSurvey(survey).value()
+        language = request.query_params.get('language', 'es')
+        response = DictSurvey(survey, language).value()
         return Response(response, status=200)

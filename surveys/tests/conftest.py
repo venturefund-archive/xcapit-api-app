@@ -1,4 +1,4 @@
-from surveys.models import Choice, Question, Survey, InvestorCategory
+from surveys.models import Choice, Question, Survey, InvestorCategory, QuestionTranslation, ChoiceTranslation
 from profiles.models import Profile
 from users.models import User
 import pytest
@@ -7,23 +7,85 @@ import json
 
 @pytest.fixture
 def create_survey():
-    questions = ['Lorem Ipsum', 'dolor sit amet', 'consectetur adipiscing elit']
-    choices = [{'text': 'ChoiceOne', 'value': 1},
-               {'text': 'ChoiceTwo', 'value': 2},
-               {'text': 'ChoiceThree', 'value': 3}]
+    translated_questions = [
+        {'text': 'PreguntaUno', 'language': 'es', 'question_id': 1},
+        {'text': 'QuestionOne', 'language': 'en', 'question_id': 1},
+        {'text': 'PreguntaDos', 'language': 'es', 'question_id': 2},
+        {'text': 'QuestionTwo', 'language': 'en', 'question_id': 2},
+        {'text': 'PreguntaTres', 'language': 'es', 'question_id': 3},
+        {'text': 'QuestionThree', 'language': 'en', 'question_id': 3},
+    ]
+
+    translated_choices = [
+        {'text': 'OpciónUno', 'language': 'es', 'value': 1},
+        {'text': 'ChoiceOne', 'language': 'en', 'value': 1},
+        {'text': 'OpciónDos', 'language': 'es', 'value': 2},
+        {'text': 'ChoiceTwo', 'language': 'en', 'value': 2},
+        {'text': 'OpciónTres', 'language': 'es', 'value': 3},
+        {'text': 'ChoiceThree', 'language': 'en', 'value': 3},
+    ]
 
     survey = Survey.objects.create(name='investor_test')
-    for question in questions:
-        created_question = Question.objects.create(survey=survey, text=question)
-        for choice in choices:
-            Choice.objects.create(question=created_question, text=choice['text'], value=choice['value'])
+
+    for question_number in [0, 1, 2]:
+        question = Question.objects.create(survey=survey, order=question_number)
+
+        question_translations = [translated_question for translated_question in translated_questions if
+                                 translated_question['question_id'] == question.id]
+
+        [QuestionTranslation.objects.create(question=question,
+                                            text=translation['text'],
+                                            language=translation['language']) for translation in question_translations]
+
+        for value in [1, 2, 3]:
+            choice = Choice.objects.create(question=question, value=value)
+
+            choice_translations = [translated_choice for translated_choice in translated_choices if
+                                   translated_choice['value'] == choice.value]
+
+            [ChoiceTranslation.objects.create(choice=choice,
+                                              text=translation['text'],
+                                              language=translation['language']) for translation in choice_translations]
 
 
 @pytest.fixture
-def expected_survey():
+def expected_spanish_survey():
     return [
         {
-            "text": "Lorem Ipsum",
+            "text": "PreguntaUno",
+            "order": 0,
+            "options": [
+                {"text": "OpciónUno", "points": 1},
+                {"text": "OpciónDos", "points": 2},
+                {"text": "OpciónTres", "points": 3}
+            ]
+        },
+        {
+            "text": "PreguntaDos",
+            "order": 1,
+            "options": [
+                {"text": "OpciónUno", "points": 1},
+                {"text": "OpciónDos", "points": 2},
+                {"text": "OpciónTres", "points": 3}
+            ]
+        },
+        {
+            "text": "PreguntaTres",
+            "order": 2,
+            "options": [
+                {"text": "OpciónUno", "points": 1},
+                {"text": "OpciónDos", "points": 2},
+                {"text": "OpciónTres", "points": 3}
+            ]
+        }
+    ]
+
+
+@pytest.fixture
+def expected_english_survey():
+    return [
+        {
+            "text": "QuestionOne",
             "order": 0,
             "options": [
                 {"text": "ChoiceOne", "points": 1},
@@ -32,7 +94,7 @@ def expected_survey():
             ]
         },
         {
-            "text": "dolor sit amet",
+            "text": "QuestionTwo",
             "order": 1,
             "options": [
                 {"text": "ChoiceOne", "points": 1},
@@ -41,7 +103,7 @@ def expected_survey():
             ]
         },
         {
-            "text": "consectetur adipiscing elit",
+            "text": "QuestionThree",
             "order": 2,
             "options": [
                 {"text": "ChoiceOne", "points": 1},
@@ -53,9 +115,22 @@ def expected_survey():
 
 
 @pytest.fixture
-def expected_question_json_response():
+def expected_spanish_question_json_response():
     return {
-        "text": "Lorem Ipsum",
+        "text": "PreguntaUno",
+        "order": 0,
+        "options": [
+            {"text": "OpciónUno", "points": 1},
+            {"text": "OpciónDos", "points": 2},
+            {"text": "OpciónTres", "points": 3}
+        ]
+    }
+
+
+@pytest.fixture
+def expected_english_question_json_response():
+    return {
+        "text": "QuestionOne",
         "order": 0,
         "options": [
             {"text": "ChoiceOne", "points": 1},

@@ -1,13 +1,22 @@
-from surveys.models import Survey, Question, Choice
+from surveys.models import Survey, Question, Choice, QuestionTranslation
 from django.db import IntegrityError
 import pytest
 
 
 @pytest.mark.django_db
 def test_create_survey_with_questions_and_answers(create_survey):
-    assert Survey.objects.get(name='investor_test')
-    assert len(Question.objects.all()) == 3
-    assert len(Choice.objects.all()) == 9
+    survey = Survey.objects.get(name='investor_test')
+    questions = survey.questions.all()
+
+    assert survey
+    assert len(survey.questions.all()) == 3
+    for question in questions:
+        choices = question.choices.all()
+        assert len(question.translated_questions.all()) == 2
+        assert len(question.choices.all()) == 3
+
+        for choice in choices:
+            assert len(choice.translated_choices.all()) == 2
 
 
 @pytest.mark.django_db
