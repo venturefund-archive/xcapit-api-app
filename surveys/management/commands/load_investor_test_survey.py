@@ -17,12 +17,14 @@ class Command(BaseCommand):
         survey = Survey.objects.create(name=survey_data['name'])
         for question in survey_data['questions']:
             created_question = Question.objects.create(survey=survey, order=question['order'])
-            for language, translated_text in question['text']:
-                QuestionTranslation.objects.create(question=created_question, language=language, text=translated_text)
+            for language in question['text']:
+                QuestionTranslation.objects.create(question=created_question, language=language,
+                                                   text=question['text'][language])
 
             for choice in question['choices']:
                 created_choice = Choice.objects.create(question=created_question, value=choice['value'])
-                for language, translated_text in choice['text']:
-                    ChoiceTranslation.objects.create(choice=created_choice, language=language, text=translated_text)
+                for language in choice['text']:
+                    ChoiceTranslation.objects.create(choice=created_choice, language=language,
+                                                     text=choice['text'][language])
 
         self.stdout.write(self.style.SUCCESS('Successful data upload'))
