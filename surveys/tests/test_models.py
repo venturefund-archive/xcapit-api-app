@@ -1,4 +1,4 @@
-from surveys.models import Survey, Question, Choice, QuestionTranslation
+from surveys.models import Survey, Question
 from django.db import IntegrityError
 import pytest
 

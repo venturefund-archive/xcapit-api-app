@@ -33,9 +33,10 @@ def create_survey():
         question_translations = [translated_question for translated_question in translated_questions if
                                  translated_question['question_id'] == question.id]
 
-        [QuestionTranslation.objects.create(question=question,
-                                            text=translation['text'],
-                                            language=translation['language']) for translation in question_translations]
+        for translation in question_translations:
+            QuestionTranslation.objects.create(question=question,
+                                               text=translation['text'],
+                                               language=translation['language'])
 
         for value in [1, 2, 3]:
             choice = Choice.objects.create(question=question, value=value)
@@ -43,9 +44,10 @@ def create_survey():
             choice_translations = [translated_choice for translated_choice in translated_choices if
                                    translated_choice['value'] == choice.value]
 
-            [ChoiceTranslation.objects.create(choice=choice,
-                                              text=translation['text'],
-                                              language=translation['language']) for translation in choice_translations]
+            for translation in choice_translations:
+                ChoiceTranslation.objects.create(choice=choice,
+                                                 text=translation['text'],
+                                                 language=translation['language'])
 
 
 @pytest.fixture
