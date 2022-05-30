@@ -5,9 +5,12 @@ import pytest
 
 
 def test_dict_choice():
-    assert DictChoice(Mock(spec=Choice))
+    assert DictChoice(Mock(spec=Choice), 'es')
 
 
 @pytest.mark.django_db
-def test_dict_choice_value(create_survey):
-    assert DictChoice(Choice.objects.first()).value() == {"text": "ChoiceOne", "points": 1}
+@pytest.mark.parametrize('language, expected_result',
+                         [['es', {"text": "OpciónUno", "points": 1}],
+                          ['en', {"text": "ChoiceOne", "points": 1}]])
+def test_dict_choice_value(create_survey, language, expected_result):
+    assert DictChoice(Choice.objects.first(), language).value() == expected_result
