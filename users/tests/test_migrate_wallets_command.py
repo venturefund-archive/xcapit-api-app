@@ -22,7 +22,6 @@ def wallet_for():
     return wf
 
 
-@pytest.mark.wip
 @pytest.mark.django_db
 def test_migrate_wallets_command(user, wallet_for):
     wallet_for(user, 'ERC20')
