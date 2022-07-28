@@ -1,6 +1,6 @@
 import pytest
 from django.urls import reverse
-
+from users.models import User
 from wallets.models import Wallet
 
 
@@ -35,6 +35,7 @@ def test_wallet_view(client, user_mock, wallets_data):
     assert wallets.filter(network='ERC20').first().address == 'test_erc20_address'
     assert wallets.filter(network='RSK').first().address == 'test_rsk_address'
     assert wallets.filter(network='MATIC').first().address == 'test_matic_address'
+    assert User.objects.get(pk=user_mock.id).address == 'test_erc20_address'
 
 
 @pytest.mark.django_db
@@ -56,6 +57,7 @@ def test_wallet_view_with_existing_wallets(client, user_mock, wallets_data, wall
     assert wallets.filter(user_id='1', network='ERC20').first().address == 'test_erc20_address2'
     assert wallets.filter(user_id='1', network='RSK').first().address == 'test_rsk_address2'
     assert wallets.filter(user_id='1', network='MATIC').first().address == 'test_matic_address2'
+    assert User.objects.get(pk=user_mock.id).address == 'test_erc20_address2'
 
 
 @pytest.mark.django_db
