@@ -3,7 +3,7 @@ from .views import RegistrationAPIView, EmailValidationTokenAPIView, \
     SendEmailValidationTokenAPIView, ObtainJWTView, \
     SendResetPasswordEmailAPIView, ResetPasswordAPIView, \
     ChangePasswordAPIView, IsSuperUserAPIView, GetUserAPIView, ByEmailAPIView, \
-    LoginWithGoogleAPIView
+    LoginWithGoogleAPIView, IdByAnAddressAPIView
 from rest_framework_simplejwt import views as jwt_views
 
 app_name = 'users'
@@ -20,5 +20,6 @@ urlpatterns = [
     path('reset_password', ResetPasswordAPIView.as_view(), name="reset-password"),
     path('change_password/<pk>', ChangePasswordAPIView.as_view(), name="change-password"),
     path('is_superuser', IsSuperUserAPIView.as_view(), name='is-superuser'),
+    path('id_by/<an_address>', IdByAnAddressAPIView.as_view(), name='id-by-an-address'),
     path('<pk>', GetUserAPIView.as_view(), name='get-user'),
 ]

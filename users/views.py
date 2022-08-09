@@ -30,7 +30,6 @@ from google.auth.transport import requests as google_auth_request
 from datetime import datetime
 from django.conf import settings
 
-
 add_error_code = ResponseHelper.add_error_code
 
 
@@ -95,6 +94,16 @@ class ByEmailAPIView(APIView):
         user = users.first()
         serializer = self.serializer_class(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class IdByAnAddressAPIView(APIView):
+
+    def get(self, request, an_address: str):
+        users = User.objects.filter(address=an_address)
+        return Response(
+            {'user_id': users.first().id} if len(users) else {},
+            status.HTTP_200_OK if len(users) else status.HTTP_404_NOT_FOUND
+        )
 
 
 class EmailValidationTokenAPIView(APIView):
