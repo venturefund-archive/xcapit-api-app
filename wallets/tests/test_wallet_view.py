@@ -29,13 +29,30 @@ def test_wallet_view(client, user_mock, wallets_data):
         data=wallets_data,
         content_type='application/json'
     )
-    assert response.status_code == 200
     wallets = Wallet.objects.all()
+
+    assert response.status_code == 200
     assert wallets.filter(user=user_mock).count() == 3
     assert wallets.filter(network='ERC20').first().address == 'test_erc20_address'
     assert wallets.filter(network='RSK').first().address == 'test_rsk_address'
     assert wallets.filter(network='MATIC').first().address == 'test_matic_address'
     assert User.objects.get(pk=user_mock.id).address == 'test_erc20_address'
+
+
+@pytest.mark.django_db
+def test_wallet_view_without_user_id(client, wallets_data):
+    response = client.post(
+        reverse('wallets:wallets', kwargs={'user_id': '_'}),
+        data=wallets_data,
+        content_type='application/json'
+    )
+    wallets = Wallet.objects.all()
+
+    assert response.status_code == 200
+    assert wallets.filter(network='ERC20').first().address == 'test_erc20_address'
+    assert wallets.filter(network='RSK').first().address == 'test_rsk_address'
+    assert wallets.filter(network='MATIC').first().address == 'test_matic_address'
+    assert User.objects.filter(address='test_erc20_address').exists() is True
 
 
 @pytest.mark.django_db

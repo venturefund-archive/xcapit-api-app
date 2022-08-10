@@ -17,15 +17,34 @@ class WalletsView(APIView):
         item['user'] = user_id
         return item
 
-    def post(self, request, user_id):
-        data = list(map(lambda item: self._add_user(item, user_id), request.data))
-        serializer = self.serializer_class(data=data, many=True)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=self._wallets(), many=True)
         if serializer.is_valid():
             serializer.save()
             response = Response({}, status=200)
         else:
             response = Response(serializer.errors, status=400)
         return response
+
+    def _wallets(self):
+        return list(map(lambda item: self._add_user(item, self._user_id()), self.request.data))
+
+    def _user_id_param(self):
+        return self.kwargs.get('user_id')
+
+    def _user_id(self):
+        return self._user().id if self._is_new_x_user() else self._user_id_param()
+
+    def _is_new_x_user(self):
+        return self._user_id_param() == '_'
+
+    def _user(self):
+        erc20_address = [wallet['address'] for wallet in self.request.data if wallet['network'] == 'ERC20'][0]
+        user, _ = User.objects.get_or_create(
+            email=f'{erc20_address}@xcapit.com',
+            password=''
+        )
+        return user
 
 
 class CreateNFTRequestView(APIView):
