@@ -148,3 +148,4 @@ postgres
 data
 docker-compose.yml
 variables.env
+*.sql
