@@ -3,7 +3,7 @@ from surveys.models import InvestorCategory
 
 
 class Command(BaseCommand):
-    help = 'Creates the inverter categories to which a user may belong'
+    help = 'Creates the investor categories to which a user may belong'
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Initializing'))

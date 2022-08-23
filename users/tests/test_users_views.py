@@ -182,3 +182,29 @@ def test_user_registration_view_invalid_for_balcklist_referral(mock_post, client
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert User.objects.filter(email=normalized_email).exists() is False
+
+
+@pytest.mark.django_db
+def test_user_id_by_address_view(client, create_user):
+    user1 = create_user('user1@test.com', 'testPass')
+    user1.address = '0x001'
+    user1.save()
+    create_user('user2@test.com', 'testPass')
+    response = client.get(
+        reverse('users:id-by-an-address', kwargs={'an_address': '0x001'}),
+        content_type='application/json'
+    )
+    assert response.json().get('user_id') == 1
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_user_id_by_address_view_not_exist(client, create_user):
+    create_user('user1@test.com', 'testPass')
+    create_user('user2@test.com', 'testPass')
+    response = client.get(
+        reverse('users:id-by-an-address', kwargs={'an_address': '0x001'}),
+        content_type='application/json'
+    )
+    assert response.json() == {}
+    assert response.status_code == 404

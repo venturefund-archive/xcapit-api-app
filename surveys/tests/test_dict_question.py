@@ -5,9 +5,14 @@ import pytest
 
 
 def test_question_json_response():
-    assert DictQuestion(Mock(spec=Question))
+    assert DictQuestion(Mock(spec=Question), 'es')
 
 
 @pytest.mark.django_db
-def test_question_json_response_value(create_survey, expected_question_json_response):
-    assert DictQuestion(Question.objects.first()).value() == expected_question_json_response
+def test_spanish_question_json_response_value(create_survey, expected_spanish_question_json_response):
+    assert DictQuestion(Question.objects.first(), 'es').value() == expected_spanish_question_json_response
+
+
+@pytest.mark.django_db
+def test_english_question_json_response_value(create_survey, expected_english_question_json_response):
+    assert DictQuestion(Question.objects.first(), 'en').value() == expected_english_question_json_response

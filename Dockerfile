@@ -1,11 +1,12 @@
-FROM python:3.8
+FROM python:3.8-slim
 
-RUN pip install --upgrade pip
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-RUN mkdir /code
 WORKDIR /code
 
 COPY . .
 
-RUN pip install -r requirements.txt
+RUN set -e; \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip check

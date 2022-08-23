@@ -17,7 +17,6 @@ def _question_order_value():
 class Question(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='questions')
     order = models.IntegerField(default=_question_order_value)
-    text = models.CharField(max_length=255)
 
     class Meta:
         unique_together = ('survey', 'order')
@@ -26,14 +25,33 @@ class Question(models.Model):
         verbose_name = 'Question'
 
 
+class QuestionTranslation(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='translated_questions')
+    text = models.CharField(max_length=200)
+    language = models.CharField(max_length=5)
+
+    class Meta:
+        verbose_name_plural = 'translated_questions'
+        verbose_name = 'translated_question'
+
+
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
-    text = models.CharField(max_length=200)
     value = models.IntegerField(default=0)
 
     class Meta:
         verbose_name_plural = 'Choice'
         verbose_name = 'Choices'
+
+
+class ChoiceTranslation(models.Model):
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE, related_name='translated_choices')
+    text = models.CharField(max_length=200)
+    language = models.CharField(max_length=2)
+
+    class Meta:
+        verbose_name_plural = 'translated_choices'
+        verbose_name = 'translated_choice'
 
 
 class InvestorCategory(models.Model):
