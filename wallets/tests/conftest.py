@@ -85,3 +85,15 @@ def wallet_mock_with_default_user(user_mock):
         return
 
     return wmwdu
+
+
+@pytest.fixture
+def wallet_for():
+    def wf(an_user: User, a_network: str):
+        return Wallet.objects.create(
+            user=an_user,
+            network=a_network,
+            address=f'{a_network}_address'
+        )
+
+    return wf
