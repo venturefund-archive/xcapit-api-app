@@ -14,6 +14,12 @@ class Command(BaseCommand):
         json_data = open(os.path.abspath(os.path.dirname(__file__)) + '/fixture/survey.json')
         survey_data = json.load(json_data)['survey']
 
+        ChoiceTranslation.objects.all().delete()
+        Choice.objects.all().delete()
+        QuestionTranslation.objects.all().delete()
+        Question.objects.all().delete()
+        Survey.objects.all().delete()
+
         survey = Survey.objects.create(name=survey_data['name'])
         for question in survey_data['questions']:
             created_question = Question.objects.create(survey=survey, order=question['order'])
