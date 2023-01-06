@@ -47,6 +47,22 @@ class WalletsView(APIView):
         return user
 
 
+class GetUserWalletsView(APIView):
+    def get(self, request, wallet_address, *args, **kwargs):
+        try:
+            user = User.objects.get(address=wallet_address.lower())
+            wallets = Wallet.objects.select_related('user').filter(user_id=user.id)
+            response = Response(self._map_wallets_to_json(wallets), 200)
+        except User.DoesNotExist:
+            response = Response({'error': 'wallet address does not exist in BD'}, status=400)
+
+        return response
+
+    @staticmethod
+    def _map_wallets_to_json(wallets):
+        return [{'network': wallet.network, 'address': wallet.address} for wallet in wallets]
+
+
 class CreateNFTRequestView(APIView):
     serializer_class = NFTRequestSerializer
 

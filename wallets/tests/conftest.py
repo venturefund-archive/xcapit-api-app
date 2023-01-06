@@ -26,7 +26,9 @@ def wallet_mock():
     def wm(user: User):
         wallets = [{"user": user, "network": "ERC20", "address": f"test_erc20_address_{user.id}"},
                    {"user": user, "network": "MATIC", "address": f"test_matic_address_{user.id}"},
-                   {"user": user, "network": "RSK", "address": f"test_rsk_address_{user.id}"}]
+                   {"user": user, "network": "RSK", "address": f"test_rsk_address_{user.id}"},
+                   {"user": user, "network": "BSC_BEP20", "address": f"test_bsc_address_{user.id}"},
+                   {"user": user, "network": "SOLANA", "address": f"test_solana_address_{user.id}"}]
         for wallet in wallets:
             Wallet.objects.create(**wallet)
         return
@@ -97,3 +99,15 @@ def wallet_for():
         )
 
     return wf
+
+
+@pytest.fixture
+def expected_user_wallets():
+    def euw(user: User):
+        return [{"network": "ERC20", "address": f"test_erc20_address_{user.id}"},
+                {"network": "MATIC", "address": f"test_matic_address_{user.id}"},
+                {"network": "RSK", "address": f"test_rsk_address_{user.id}"},
+                {"network": "BSC_BEP20", "address": f"test_bsc_address_{user.id}"},
+                {"network": "SOLANA", "address": f"test_solana_address_{user.id}"}]
+
+    return euw
