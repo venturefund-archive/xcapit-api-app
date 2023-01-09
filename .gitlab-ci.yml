@@ -84,7 +84,7 @@ cache:
 ### Semantic release
 .semantic-release: &semantic-release
   stage: release
- #image: node:${NODE_VERSION}
+ #image: node:${NODE_VERSION} 
   image: node:18
   before_script:
     - npm install @semantic-release/gitlab @semantic-release/changelog @semantic-release/release-notes-generator @semantic-release/git -D
