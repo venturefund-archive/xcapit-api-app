@@ -6,35 +6,40 @@
         "order": 1,
         "text": {
           "es": "Estás en un programa de juegos de televisión y puedes elegir uno de los siguientes premios. ¿Cuál te llevarías?",
-          "en": "Let’s imagine that you are in a TV game show, and you can choose between one of the following rewards, which one would you prefer?"
+          "en": "Let’s imagine that you are in a TV game show, and you can choose between one of the following rewards, which one would you prefer?",
+          "pt": "Está num programa de televisão e pode escolher um dos seguintes prémios. Qual levaria consigo?"
         },
         "choices": [
           {
             "value": 1,
             "text": {
               "es": "$1.000 en efectivo.",
-              "en": "$1,000 cash."
+              "en": "$1,000 cash.",
+              "pt": "1.000 em dinheiro."
             }
           },
           {
             "value": 2,
             "text": {
               "es": "Un 50% de posibilidades de ganar $5.000.",
-              "en": "50% chances of winning $5,000."
+              "en": "50% chances of winning $5,000.",
+              "pt": "50% de probabilidade de ganhar $5.000."
             }
           },
           {
             "value": 3,
             "text": {
               "es": "Un 25% de posibilidades de ganar $10.000.",
-              "en": "25% chances of winning $10,000."
+              "en": "25% chances of winning $10,000.",
+              "pt": "Uma probabilidade de 25% de ganhar $10.000."
             }
           },
           {
             "value": 4,
             "text": {
               "es": "Un 5% de posibilidades de ganar $100.000.",
-              "en": "5% chances of winning $100,000."
+              "en": "5% chances of winning $100,000.",
+              "pt": "Uma probabilidade de 5% de ganhar $100.000."
             }
           }
         ]
@@ -43,35 +48,40 @@
         "order": 2,
         "text": {
           "es": "Cuando piensa en la palabra “riesgo”, ¿cuál de las siguientes palabras le viene a la mente primero?",
-          "en": "When you think about the word “risk“, what concept comes to your mind first?"
+          "en": "When you think about the word “risk“, what concept comes to your mind first?",
+          "pt": "Quando pensa na palavra “risco”, que conceito lhe vem primeiro à cabeça?"
         },
         "choices": [
           {
             "value": 1,
             "text": {
               "es": "Pérdida.",
-              "en": "Lost."
+              "en": "Lost.",
+              "pt": "Perda."
             }
           },
           {
             "value": 2,
             "text": {
               "es": "Incertidumbre.",
-              "en": "Uncertainty."
+              "en": "Uncertainty.",
+              "pt": "Incerteza."
             }
           },
           {
             "value": 3,
             "text": {
               "es": "Oportunidad.",
-              "en": "Opportunity."
+              "en": "Opportunity.",
+              "pt": "Oportunidade."
             }
           },
           {
             "value": 4,
             "text": {
               "es": "Emoción.",
-              "en": "Emotion."
+              "en": "Emotion.",
+              "pt": "Emoção."
             }
           }
         ]
@@ -80,35 +90,40 @@
         "order": 3,
         "text": {
           "es": "En general, ¿cómo te describirías como tomador de riesgos?",
-          "en": "Which of the following options describes you better as a “risk taker”?"
+          "en": "Which of the following options describes you better as a “risk taker”?",
+          "pt": "Qual das seguintes opções o descreve melhor como um “tomador de risco“?"
         },
         "choices": [
           {
             "value": 4,
             "text": {
               "es": "Una persona jugada.",
-              "en": "I am a truly risk taker. I feel courageous about it."
+              "en": "I am a truly risk taker. I feel courageous about it.",
+              "pt": "Eu sou um verdadeiro tomador de risco. Sinto-me corajoso a esse respeito."
             }
           },
           {
             "value": 3,
             "text": {
               "es": "Soy una persona dispuesta a correr riesgos después de completar una investigación adecuada.",
-              "en": "I'm willing to take risk if I have done a research first."
+              "en": "I'm willing to take risk if I have done a research first.",
+              "pt": "Estou disposto a correr riscos se tiver feito uma investigação primeiro."
             }
           },
           {
             "value": 2,
             "text": {
               "es": "Persona cautelosa.",
-              "en": "I consider myself as a cautelous person."
+              "en": "I consider myself as a cautelous person.",
+              "pt": "Considero-me como uma pessoa cautelosa."
             }
           },
           {
             "value": 1,
             "text": {
               "es": "Verdaderamente evito los riesgos.",
-              "en": "I feel comfortable avoiding risks"
+              "en": "I feel comfortable avoiding risks",
+              "pt": "Eu evito realmente os riscos."
             }
           }
         ]
@@ -117,28 +132,32 @@
         "order": 4,
         "text": {
           "es": "Si recibes inesperadamente $20.000 dólares para invertir, ¿qué harías?",
-          "en": "Let’s assume that someone give you $20,000 to invest. What would you do?"
+          "en": "Let’s assume that someone give you $20,000 to invest. What would you do?",
+          "pt": "Se recebesse inesperadamente $20.000 para investir, o que faria?"
         },
         "choices": [
           {
             "value": 1,
             "text": {
               "es": "Depositarlo en una cuenta bancaria, una cuenta remunerada o un plazo fijo.",
-              "en": "Accredited it in a bank account or a fixed-term bank deposit."
+              "en": "Accredited it in a bank account or a fixed-term bank deposit.",
+              "pt": "Depositá-lo numa conta bancária, numa conta remunerada ou num depósito a prazo fixo."
             }
           },
           {
             "value": 2,
             "text": {
               "es": "Comprar Bitcoin y otras criptomonedas estables.",
-              "en": "Buy bitcoins or any stable cryptocurrencies."
+              "en": "Buy bitcoins or any stable cryptocurrencies.",
+              "pt": "Comprar Bitcoin e outras moedas criptográficas estáveis."
             }
           },
           {
             "value": 3,
             "text": {
               "es": "Invertir en proyectos cripto iniciales con promesa de crecimiento.",
-              "en": "Invest in a early phase cryptocurrencies project with growing expectations."
+              "en": "Invest in a early phase cryptocurrencies project with growing expectations.",
+              "pt": "Investir em criações criptográficas com a promessa de crescimento."
             }
           }
         ]
@@ -147,28 +166,32 @@
         "order": 5,
         "text": {
           "es": "Ahora, con estos $20.000 se te presentan 3 opciones para diversificar tu inversión,¿cuál de las siguientes opciones de inversión encontrarás más atractivo?",
-          "en": "Now you have to select one of the following alternatives to invest the previous 20K. Which one you think is the best option?"
+          "en": "Now you have to select one of the following alternatives to invest the previous 20K. Which one you think is the best option?",
+          "pt": "Agora, com estes $20.000, são-lhe apresentadas 3 opções para diversificar o seu investimento, qual das seguintes opções de investimento considerará mais atractiva?"
         },
         "choices": [
           {
             "value": 1,
             "text": {
               "es": "60% en inversiones de bajo riesgo 30% en inversiones de riesgo medio 10% en inversiones de alto riesgo.",
-              "en": "60% low risk investment, 30% medium risk investment and 10% high risk investment."
+              "en": "60% low risk investment, 30% medium risk investment and 10% high risk investment.",
+              "pt": "60% em investimentos de baixo risco 30% em investimentos de médio risco 10% em investimentos de alto risco."
             }
           },
           {
             "value": 2,
             "text": {
               "es": "30% en inversiones de bajo riesgo 40% en inversiones de medio riesgo 30% en inversiones de alto riesgo.",
-              "en": "30% low risk investment, 40% medium risk investment and 30% high risk investment."
+              "en": "30% low risk investment, 40% medium risk investment and 30% high risk investment.",
+              "pt": "30% em investimentos de baixo risco 40% em investimentos de médio risco 30% em investimentos de alto risco."
             }
           },
           {
             "value": 3,
             "text": {
               "es": "10% en inversiones de bajo riesgo 40% en inversiones de medio riesgo 50% en inversiones de alto riesgo.",
-              "en": "10% low risk investment, 40% medium risk investment and 50% high risk investment."
+              "en": "10% low risk investment, 40% medium risk investment and 50% high risk investment.",
+              "pt": "10% em investimentos de baixo risco 40% em investimentos de médio risco 50% em investimentos de alto risco."
             }
           }
         ]
